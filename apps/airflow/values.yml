@@ -20,9 +20,29 @@ dags:
     wait: 60
 
 # Tối ưu tài nguyên để không vượt quá mức $200/tháng
-workers:
-  replicas: 1
+# Giảm RAM cho Postgres đi kèm
+postgresql:
   resources:
     requests:
-      cpu: "500m"
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
+
+# Giảm RAM cho Redis đi kèm
+redis:
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Giảm RAM cho các bộ phận chính của Airflow
+webserver:
+  resources:
+    requests:
+      memory: "512Mi"
+scheduler:
+  resources:
+    requests:
       memory: "512Mi"
