@@ -23,33 +23,36 @@ dags:
 # Giảm RAM cho Postgres đi kèm
 postgresql:
   enabled: true
-  global:
-    storageClass: null  # Quan trọng: null thay vì ""
+  install: true
   primary:
     persistence:
       enabled: false
       storageClass: null
-    resources:
-      requests:
-        cpu: "50m"
-        memory: "160Mi"
-      limits:
-        cpu: "200m"
-        memory: "512Mi"
-
-# Giảm RAM cho Redis đi kèm
+      size: 1Gi  # Dummy, không dùng
+  # Override global cho subchart
+  extraEnvVars:
+    - name: SKIP_PERSISTENCE
+      value: "true"
 redis:
   enabled: true
-  global:
-    storageClass: null
+  install: true
   master:
     persistence:
       enabled: false
       storageClass: null
-    resources:
-      requests:
-        cpu: "50m"
-        memory: "64Mi"
+  replica:
+    persistence:
+      enabled: false
+      storageClass: null
+# Tắt tất cả persistence khác
+dags:
+  persistence:
+    enabled: false
+    storageClass: null
+logs:
+  persistence:
+    enabled: false
+    storageClass: null
 
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
@@ -74,11 +77,3 @@ triggerer:
   enabled: false
 statsd:
   enabled: false
-dags:
-  persistence:
-    enabled: false
-    storageClass: null
-logs:
-  persistence:
-    enabled: false
-    storageClass: null
