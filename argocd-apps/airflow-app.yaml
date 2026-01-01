@@ -1,0 +1,21 @@
+# iot-mlops-manifests/argocd-apps/airflow-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git'
+    targetRevision: HEAD
+    path: apps/airflow
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: airflow # Sẽ tự động tạo namespace này
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
