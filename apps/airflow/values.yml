@@ -37,14 +37,15 @@ postgresql:
 # Giảm RAM cho Redis đi kèm
 redis:
   enabled: true
-  # Redis thường dùng từ khóa 'master' thay vì 'primary'
   master:
     resources:
       requests:
         cpu: "50m"
         memory: "64Mi"
+    persistence:
+      enabled: false
   persistence:
-    enabled: false # Để ở đây cho chắc chắn
+    enabled: false
 
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
