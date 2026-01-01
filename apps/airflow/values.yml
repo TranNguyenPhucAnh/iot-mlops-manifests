@@ -24,8 +24,8 @@ dags:
 postgresql:
   resources:
     requests:
-      cpu: "100m"
-      memory: "256Mi"
+      cpu: "50m"
+      memory: "160Mi"
     limits:
       cpu: "200m"
       memory: "512Mi"
@@ -36,8 +36,8 @@ postgresql:
 redis:
   resources:
     requests:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: "50m"
+      memory: "64Mi"
   persistence:
     enabled: false
     
@@ -46,7 +46,21 @@ webserver:
   resources:
     requests:
       memory: "512Mi"
+      
 scheduler:
   resources:
     requests:
       memory: "512Mi"
+      
+# 3. Giảm số lượng Worker xuống tối thiểu
+workers:
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+
+triggerer:
+  enabled: false
+statsd:
+  enabled: false # Tắt bộ thu thập thông số này đi
