@@ -43,11 +43,11 @@ postgresql:
       #memory: "64Mi"
   #persistence:
     #enabled: false
-  redis:
-    enabled: true
-    primary:
-      persistence:
-        enabled: false
+redis:
+  enabled: true
+  primary:
+    persistence:
+      enabled: false
 
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
