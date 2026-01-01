@@ -22,24 +22,29 @@ dags:
 # Tối ưu tài nguyên để không vượt quá mức $200/tháng
 # Giảm RAM cho Postgres đi kèm
 postgresql:
-  resources:
-    requests:
-      cpu: "50m"
-      memory: "160Mi"
-    limits:
-      cpu: "200m"
-      memory: "512Mi"
-  persistence:
-    enabled: false
+  enabled: true
+  primary:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "160Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+    persistence:
+      enabled: false
 
 # Giảm RAM cho Redis đi kèm
 redis:
-  resources:
-    requests:
-      cpu: "50m"
-      memory: "64Mi"
+  enabled: true
+  # Redis thường dùng từ khóa 'master' thay vì 'primary'
+  master:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
   persistence:
-    enabled: false
+    enabled: false # Để ở đây cho chắc chắn
 
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
