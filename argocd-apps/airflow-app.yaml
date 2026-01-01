@@ -10,6 +10,9 @@ spec:
     repoURL: 'https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git'
     targetRevision: HEAD
     path: apps/airflow
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: airflow # Sẽ tự động tạo namespace này
