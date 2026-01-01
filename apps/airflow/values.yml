@@ -29,14 +29,18 @@ postgresql:
     limits:
       cpu: "200m"
       memory: "512Mi"
-
+  persistence:
+    enabled: false
+    
 # Giảm RAM cho Redis đi kèm
 redis:
   resources:
     requests:
       cpu: "100m"
       memory: "128Mi"
-
+  persistence:
+    enabled: false
+    
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
   resources:
