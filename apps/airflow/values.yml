@@ -3,14 +3,12 @@ config:
   core:
     dags_are_paused_at_creation: "true"
     load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
-
 # Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
 serviceAccount:
   create: true
   annotations:
     # THAY THẾ bằng ARN của IAM Role bạn đã tạo ở phần Terraform
     eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-
 # Cấu hình để Airflow tự động lấy code Python (DAG) từ một Git khác
 dags:
   gitSync:
@@ -18,41 +16,33 @@ dags:
     repo: "https://github.com/TranNguyenPhucAnh/iot-mlops-python-dag.git" # Repo chứa code xử lý data
     branch: "main"
     wait: 60
-
 # Tối ưu tài nguyên để không vượt quá mức $200/tháng
 # Giảm RAM cho Postgres đi kèm
 postgresql:
-  enabled: true
-  install: true
+  enabled: false
   primary:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "160Mi"
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
     persistence:
       enabled: false
-      storageClass: null
-      size: 1Gi  # Dummy, không dùng
-  # Override global cho subchart
-  extraEnvVars:
-    - name: SKIP_PERSISTENCE
-      value: "true"
+
+# Giảm RAM cho Redis đi kèm
 redis:
-  enabled: true
-  install: true
+  enabled: false
   master:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
     persistence:
       enabled: false
-      storageClass: null
-  replica:
-    persistence:
-      enabled: false
-      storageClass: null
-# Tắt tất cả persistence khác
-dags:
   persistence:
     enabled: false
-    storageClass: null
-logs:
-  persistence:
-    enabled: false
-    storageClass: null
 
 # Giảm RAM cho các bộ phận chính của Airflow
 webserver:
@@ -72,8 +62,7 @@ workers:
     requests:
       cpu: "100m"
       memory: "256Mi"
-
 triggerer:
   enabled: false
 statsd:
-  enabled: false
+  enabled: false # Tắt bộ thu thập thông số này đi
