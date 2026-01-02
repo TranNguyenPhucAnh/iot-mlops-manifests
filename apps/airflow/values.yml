@@ -24,8 +24,9 @@ dags:
 postgresql:
   enabled: true
   image:
-    # Sử dụng tag mới hơn và ổn định hơn
-    tag: "16.4.0-debian-12-r8" 
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "16.4.0-debian-12-r8"  # Pull test: docker pull ...
   primary:
     persistence:
       enabled: true # Giờ đã có gp3 nên bạn có thể tự tin bật lên!
