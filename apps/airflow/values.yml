@@ -23,16 +23,18 @@ dags:
 # Giảm RAM cho Postgres đi kèm
 postgresql:
   enabled: true
+  image:
+    # Sử dụng tag mới hơn và ổn định hơn
+    tag: "16.4.0-debian-12-r8" 
   primary:
+    persistence:
+      enabled: true # Giờ đã có gp3 nên bạn có thể tự tin bật lên!
+      size: 4Gi
+      storageClass: "gp3"
     resources:
       requests:
-        cpu: "50m"
-        memory: "160Mi"
-      limits:
-        cpu: "200m"
-        memory: "512Mi"
-    #persistence:
-      #enabled: false  # Tắt persistence - dữ liệu sẽ mất khi restart
+        cpu: "100m"
+        memory: "256Mi"
 
 # Giảm RAM cho Redis đi kèm
 redis:
