@@ -22,7 +22,7 @@ dags:
 # Tối ưu tài nguyên để không vượt quá mức $200/tháng
 # Giảm RAM cho Postgres đi kèm
 postgresql:
-  enabled: true
+  enabled: false
   primary:
     resources:
       requests:
@@ -36,7 +36,7 @@ postgresql:
 
 # Giảm RAM cho Redis đi kèm
 redis:
-  enabled: true
+  enabled: false
   master:
     resources:
       requests:
