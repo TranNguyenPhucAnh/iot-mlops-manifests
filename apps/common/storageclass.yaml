@@ -3,9 +3,16 @@ kind: StorageClass
 metadata:
   name: gp3
   annotations:
-    # Dòng này cực kỳ quan trọng: Biến gp3 thành mặc định cho toàn Cluster
-    storageclass.kubernetes.io/is-default-class: "true"
-provisioner: ebs.csi.aws.com # Phải khớp với tên của Driver bạn cài
+    storageclass.kubernetes.io/is-default-class: 'true'
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: 'apps/common'
+    repoURL: 'https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git'
+    targetRevision: HEAD
+  project: 'default'
+provisioner: ebs.csi.aws.com
 parameters:
   type: gp3
   fsType: ext4
