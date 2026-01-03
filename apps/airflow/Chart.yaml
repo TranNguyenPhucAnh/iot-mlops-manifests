@@ -1,8 +1,11 @@
 # iot-mlops-manifests/apps/airflow/Chart.yaml
 apiVersion: v2
 name: airflow-deployment
+description: Helm chart for Apache Airflow
+type: application
 version: 1.0.0
 dependencies:
   - name: airflow
     version: "1.18.0" # Phiên bản Helm Chart của Airflow
     repository: "https://airflow.apache.org"
+    
