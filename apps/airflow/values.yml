@@ -35,8 +35,8 @@ airflow:
   migrateDatabaseJob:
     useHelmHooks: false
     applyCustomEnv: false
-      jobAnnotations:
-        "argocd.argoproj.io/hook": Sync
+    jobAnnotations:
+      "argocd.argoproj.io/hook": Sync
       
   waitForMigrations:
     enabled: true
