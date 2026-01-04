@@ -28,11 +28,11 @@ airflow:
   redis:
     enabled: false
 
-waitForMigrations:
-  enabled: true
-  # Tăng thời gian timeout và retry
-  timeout: 300  # 10 phút
-  retries: 30
+  waitForMigrations:
+    enabled: true
+    # Tăng thời gian timeout và retry
+    timeout: 300  # 10 phút
+    retries: 30
   
   # Cấu hình DB bên ngoài (RDS)
   data:
@@ -51,3 +51,40 @@ waitForMigrations:
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
+
+  # Webserver
+  webserver:
+    resources:
+      requests:
+        memory: "512Mi"
+
+  # Scheduler
+  scheduler:
+    resources:
+      requests:
+        memory: "512Mi"
+
+  # Worker (Celery)
+  workers:
+    replicas: 1
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    persistence:
+      enabled: false  # Tắt persistence nếu không cần
+
+  # Tắt Triggerer (không dùng)
+  triggerer:
+    enabled: false
+    # Nếu vẫn bật, thêm persistence tắt
+    # persistence:
+    #   enabled: false
+  
+  # Tắt StatsD để giảm tài nguyên
+  statsd:
+    enabled: false
+  
+  # Tắt flower nếu không cần
+  flower:
+    enabled: false
