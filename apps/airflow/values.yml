@@ -1,89 +1,90 @@
 # iot-mlops-manifests/apps/airflow/values.yaml
-# Executor (giữ CeleryExecutor mặc định, dùng Redis)
-executor: CeleryExecutor
-
-# Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
-serviceAccount:
-  create: true
-  annotations:
-    # THAY THẾ bằng ARN của IAM Role bạn đã tạo ở phần Terraform (đảm bảo trust đúng namespace/serviceAccount)
-    eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-
-# Cấu hình để Airflow tự động lấy code Python (DAG) từ Git
-dags:
-  gitSync:
-    enabled: true
-    repo: "https://github.com/TranNguyenPhucAnh/iot-mlops-python-dag.git"
-    branch: "main"
-    wait: 60
-    # Nếu repo private, cần thêm credentials (tạo secret trước trong namespace airflow)
-    # credentialsSecret: "github-dags-secret"
-
-  # (Tuỳ chọn) Lưu DAGs trên PVC gp3 nếu muốn
-  # persistence:
-  #   enabled: true
-  #   storageClass: "gp3"
-  #   size: 2Gi
-
-# PostgreSQL nội bộ cho Airflow
-postgresql:
-  enabled: false
-
-# Redis nội bộ cho CeleryExecutor
-redis:
-  enabled: false
-
-# Cấu hình DB bên ngoài (RDS)
-data:
-  metadataConnection:
-    user: airflow_user
-    pass: airflow_password
-    protocol: postgresql
-    host: terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
-    port: 5432
-    db: airflow
-
-# Cấu hình Broker bên ngoài (ElastiCache)
-#externalRedis:
-  #host: airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com
- # port: 6379
-  #databaseNumber: 0
-  # password: "nếu có"
-
-# Cấu hình Airflow core
-config:
-  core:
-    dags_are_paused_at_creation: "true"
-    load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
-  # Quan trọng: Vì dùng CeleryExecutor, cần trỏ kết quả về Redis
-  celery:
-    broker_url: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
-    result_backend: "db+postgresql://airflow_user:airflow_password@terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com:5432/airflow"
-
-# Webserver
-webserver:
-  resources:
-    requests:
-      memory: "512Mi"
-
-# Scheduler
-scheduler:
-  resources:
-    requests:
-      memory: "512Mi"
-
-# Worker (Celery)
-workers:
-  replicas: 1
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-
-# Tắt Triggerer (không dùng)
-triggerer:
-  enabled: false
-
-# Tắt StatsD để giảm tài nguyên
-statsd:
-  enabled: false
+airflow:
+  # Executor (giữ CeleryExecutor mặc định, dùng Redis)
+  executor: CeleryExecutor
+  
+  # Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
+  serviceAccount:
+    create: true
+    annotations:
+      # THAY THẾ bằng ARN của IAM Role bạn đã tạo ở phần Terraform (đảm bảo trust đúng namespace/serviceAccount)
+      eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
+  
+  # Cấu hình để Airflow tự động lấy code Python (DAG) từ Git
+  dags:
+    gitSync:
+      enabled: true
+      repo: "https://github.com/TranNguyenPhucAnh/iot-mlops-python-dag.git"
+      branch: "main"
+      wait: 60
+      # Nếu repo private, cần thêm credentials (tạo secret trước trong namespace airflow)
+      # credentialsSecret: "github-dags-secret"
+  
+    # (Tuỳ chọn) Lưu DAGs trên PVC gp3 nếu muốn
+    # persistence:
+    #   enabled: true
+    #   storageClass: "gp3"
+    #   size: 2Gi
+  
+  # PostgreSQL nội bộ cho Airflow
+  postgresql:
+    enabled: false
+  
+  # Redis nội bộ cho CeleryExecutor
+  redis:
+    enabled: false
+  
+  # Cấu hình DB bên ngoài (RDS)
+  data:
+    metadataConnection:
+      user: airflow_user
+      pass: airflow_password
+      protocol: postgresql
+      host: terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      port: 5432
+      db: airflow
+  
+  # Cấu hình Broker bên ngoài (ElastiCache)
+  #externalRedis:
+    #host: airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com
+   # port: 6379
+    #databaseNumber: 0
+    # password: "nếu có"
+  
+  # Cấu hình Airflow core
+  config:
+    core:
+      dags_are_paused_at_creation: "true"
+      load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
+    # Quan trọng: Vì dùng CeleryExecutor, cần trỏ kết quả về Redis
+    celery:
+      broker_url: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
+      result_backend: "db+postgresql://airflow_user:airflow_password@terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com:5432/airflow"
+  
+  # Webserver
+  webserver:
+    resources:
+      requests:
+        memory: "512Mi"
+  
+  # Scheduler
+  scheduler:
+    resources:
+      requests:
+        memory: "512Mi"
+  
+  # Worker (Celery)
+  workers:
+    replicas: 1
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+  
+  # Tắt Triggerer (không dùng)
+  triggerer:
+    enabled: false
+  
+  # Tắt StatsD để giảm tài nguyên
+  statsd:
+    enabled: false
