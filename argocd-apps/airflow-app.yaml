@@ -7,12 +7,37 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git'
-    targetRevision: main
-    path: apps/airflow
+    repoURL: 'https://airflow.apache.org'  # Helm repo URL
+    targetRevision: 1.18.0                 # Chart version
+    chart: airflow                         # Chart name
+    helm:
+      # Định nghĩa values inline
+      parameters:
+        # Tắt internal databases
+        - name: postgresql.enabled
+          value: "false"
+        - name: redis.enabled
+          value: "false"
+        # External RDS
+        - name: data.metadataConnection.host
+          value: "terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com"
+        - name: data.metadataConnection.user
+          value: "airflow_user"
+        - name: data.metadataConnection.pass
+          value: "airflow_password"
+        - name: data.metadataConnection.db
+          value: "airflow"
+        - name: data.metadataConnection.port
+          value: "5432"
+        # External Redis
+        - name: data.brokerUrl
+          value: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
+        # IRSA
+        - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
+          value: "arn:aws:iam::408279620390:role/AirflowAccessRole"
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: airflow # Sẽ tự động tạo namespace này
+    namespace: airflow
   syncPolicy:
     automated:
       prune: true
