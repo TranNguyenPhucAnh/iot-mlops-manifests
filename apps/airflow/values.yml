@@ -37,13 +37,10 @@ airflow:
       host: terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
-  
+      brokerUrl: redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0
+
   # Cấu hình Airflow core
   config:
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
-    # Quan trọng: Vì dùng CeleryExecutor, cần trỏ kết quả về Redis
-    celery:
-      broker_url: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
-      result_backend: "db+postgresql://airflow_user:airflow_password@terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com:5432/airflow"
