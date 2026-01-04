@@ -46,31 +46,3 @@ config:
   celery:
     broker_url: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
     result_backend: "db+postgresql://airflow_user:airflow_password@terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com:5432/airflow"
-
-# Webserver
-webserver:
-  resources:
-    requests:
-      memory: "512Mi"
-
-# Scheduler
-scheduler:
-  resources:
-    requests:
-      memory: "512Mi"
-
-# Worker (Celery)
-workers:
-  replicas: 1
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-
-# Tắt Triggerer (không dùng)
-triggerer:
-  enabled: false
-
-# Tắt StatsD để giảm tài nguyên
-statsd:
-  enabled: false
