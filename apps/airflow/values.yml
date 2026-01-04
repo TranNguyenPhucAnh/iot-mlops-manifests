@@ -35,15 +35,13 @@ airflow:
   migrateDatabaseJob:
     useHelmHooks: false
     applyCustomEnv: false
-    
+      jobAnnotations:
+        "argocd.argoproj.io/hook": Sync
+      
   waitForMigrations:
     enabled: true
     timeout: 300
     retries: 30
-
-  migrateDatabaseJob:
-    jobAnnotations:
-        "argocd.argoproj.io/hook": Sync
   
   # Cấu hình DB bên ngoài (RDS)
   data:
