@@ -44,10 +44,10 @@ data:
     db: airflow
 
 # Cấu hình Broker bên ngoài (ElastiCache)
-externalRedis:
-  host: airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com
-  port: 6379
-  databaseNumber: 0
+#externalRedis:
+  #host: airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com
+ # port: 6379
+  #databaseNumber: 0
   # password: "nếu có"
 
 # Cấu hình Airflow core
