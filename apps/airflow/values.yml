@@ -29,7 +29,7 @@ airflow:
     enabled: false
 
   waitForMigrations:
-    enabled: false
+    enabled: true
   
   # Cấu hình DB bên ngoài (RDS)
   data:
