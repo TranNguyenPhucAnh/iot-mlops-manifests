@@ -34,34 +34,33 @@ airflow:
   
   # PostgreSQL nội bộ cho Airflow
   postgresql:
-    enabled: true
-    # Chuyển cấu hình image vào trong khối primary
-    primary:
-      image:
-        registry: docker.io
-        repository: bitnami/postgresql
-        tag: "16.4.0-debian-12-r8"
-      persistence:
-        enabled: true
-        size: 4Gi
-        storageClass: "gp3"
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "256Mi"
+    enabled: false
   
   # Redis nội bộ cho CeleryExecutor
   redis:
-    enabled: true
-    master:
-      persistence:
-        enabled: true      # Rõ ràng: dùng PVC gp3 cho Redis
-        storageClass: "gp3"
-        size: 1Gi
-      resources:
-        requests:
-          cpu: "50m"
-          memory: "64Mi"
+    enabled: false
+
+# Cấu hình DB bên ngoài (RDS)
+  data:
+    metadataConnection:
+      user: "airflow_user"
+      pass: "airflow_password"
+      host: "terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com"
+      port: 5432
+      dbId: "airflow"
+      sslmode: "disable"
+
+  # Cấu hình Broker bên ngoài (ElastiCache)
+  externalRedis:
+    host: "airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com"
+    port: 6379
+    # password: "nếu có"
+
+  # Quan trọng: Vì dùng CeleryExecutor, cần trỏ kết quả về Redis
+  config:
+    celery:
+      broker_url: "redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0"
+      result_backend: "db+postgresql://airflow_user:airflow_password@terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com:5432/airflow"
   
   # Webserver
   webserver:
