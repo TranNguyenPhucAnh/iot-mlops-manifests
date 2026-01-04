@@ -29,10 +29,7 @@ airflow:
     enabled: false
 
   waitForMigrations:
-    enabled: true
-    # Tăng thời gian timeout và retry
-    timeout: 300  # 10 phút
-    retries: 30
+    enabled: false
   
   # Cấu hình DB bên ngoài (RDS)
   data:
@@ -77,9 +74,6 @@ airflow:
   # Tắt Triggerer (không dùng)
   triggerer:
     enabled: false
-    # Nếu vẫn bật, thêm persistence tắt
-    # persistence:
-    #   enabled: false
   
   # Tắt StatsD để giảm tài nguyên
   statsd:
