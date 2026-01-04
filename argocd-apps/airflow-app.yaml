@@ -12,7 +12,7 @@ spec:
     path: apps/airflow
     helm:
       valueFiles:
-        - values.yaml
+        - values.yml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: airflow # Sẽ tự động tạo namespace này
