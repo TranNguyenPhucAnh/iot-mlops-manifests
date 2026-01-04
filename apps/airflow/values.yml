@@ -27,6 +27,12 @@ airflow:
   # Redis nội bộ cho CeleryExecutor
   redis:
     enabled: false
+
+waitForMigrations:
+  enabled: true
+  # Tăng thời gian timeout và retry
+  timeout: 300  # 10 phút
+  retries: 30
   
   # Cấu hình DB bên ngoài (RDS)
   data:
@@ -37,6 +43,7 @@ airflow:
       host: terraform-20260104064039670600000001.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
+      sslmode: "require"
     brokerUrl: redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0
 
   # Cấu hình Airflow core
