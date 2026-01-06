@@ -31,6 +31,8 @@ airflow:
         # Tùy chọn: Tự động chuyển hướng HTTP sang HTTPS nếu bạn có Certificate
         # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
       path: /
+      hosts:
+        - name: "" # Để trống nếu chưa có tên miền, ALB sẽ dùng DNS mặc định
       
   # PostgreSQL nội bộ cho Airflow
   postgresql:
