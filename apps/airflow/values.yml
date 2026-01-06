@@ -23,6 +23,7 @@ airflow:
   ingress:
     web:
       enabled: true
+      ingressClassName: alb
       annotations:
         # Chỉ định sử dụng ALB
         kubernetes.io/ingress.class: alb
