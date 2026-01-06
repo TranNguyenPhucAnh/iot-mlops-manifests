@@ -19,7 +19,19 @@ airflow:
       wait: 60
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
-  
+      
+  ingress:
+    web:
+      enabled: true
+      annotations:
+        # Chỉ định sử dụng ALB
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+        # Tùy chọn: Tự động chuyển hướng HTTP sang HTTPS nếu bạn có Certificate
+        # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      path: /
+      
   # PostgreSQL nội bộ cho Airflow
   postgresql:
     enabled: false
