@@ -32,7 +32,6 @@ airflow:
           paths:
             - path: /
               pathType: Prefix
-      tls: []
     
   # PostgreSQL nội bộ cho Airflow
   postgresql:
