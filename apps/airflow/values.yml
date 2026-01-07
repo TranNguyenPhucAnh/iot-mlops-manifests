@@ -28,9 +28,9 @@ airflow:
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
       hosts:
-        - name: airflow.example.com  # Dùng "name", không phải "host"
-          path: /                    # Dùng "path" đơn, không phải "paths" array
-          pathType: Prefix
+        - name: airflow.example.com
+      path: /                    
+      pathType: Prefix
 
   webserver:
     resources:
