@@ -29,8 +29,8 @@ airflow:
         alb.ingress.kubernetes.io/target-type: ip
       hosts:
         - name: airflow.example.com
-      path: /                    
-      pathType: Prefix
+          path: /
+          pathType: Prefix
 
   webserver:
     resources:
