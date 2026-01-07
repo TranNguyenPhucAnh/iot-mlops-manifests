@@ -32,6 +32,11 @@ airflow:
           paths:
             - path: /
               pathType: Prefix
+
+  webserver:
+    resources:
+      requests:
+        memory: "512Mi"
     
   # PostgreSQL nội bộ cho Airflow
   postgresql:
