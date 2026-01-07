@@ -20,16 +20,21 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
 
-  ingress:
-    web:
+  web:
+    ingress:
       enabled: true
       ingressClassName: alb
       annotations:
+        kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
-        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-        alb.ingress.kubernetes.io/ssl-redirect: '443'
-      path: /
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      hosts:
+        - host: "*"
+          paths:
+            - path: /
+              pathType: Prefix
+      tls: []
     
   # PostgreSQL nội bộ cho Airflow
   postgresql:
