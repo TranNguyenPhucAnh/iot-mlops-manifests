@@ -25,12 +25,9 @@ airflow:
       enabled: true
       ingressClassName: alb
       annotations:
-        # Chỉ định sử dụng ALB
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
-        # Tùy chọn: Tự động chuyển hướng HTTP sang HTTPS nếu bạn có Certificate
-        # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
       path: /
       pathType: Prefix
       
@@ -63,7 +60,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: terraform-20260106091815739700000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      host: terraform-20260107032119155500000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
       sslmode: "require"
