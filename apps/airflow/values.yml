@@ -20,8 +20,8 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
 
-  webserver:
-    ingress:
+  ingress:
+    web:
       enabled: true
       ingressClassName: alb
       annotations:
@@ -33,9 +33,6 @@ airflow:
             - path: /
               pathType: Prefix
       tls: []
-    resources:
-      requests:
-        memory: "512Mi"
     
   # PostgreSQL nội bộ cho Airflow
   postgresql:
