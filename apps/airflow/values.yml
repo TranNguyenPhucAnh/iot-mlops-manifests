@@ -1,6 +1,7 @@
 # iot-mlops-manifests/apps/airflow/values.yaml
 # Executor (giữ CeleryExecutor mặc định, dùng Redis)
 airflow:
+  airflowVersion: "3.0.2"
   executor: CeleryExecutor
   
   # Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
@@ -20,18 +21,23 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
 
+  apiServer:
+    enabled: true
+
+  # Cấu hình Ingress dành riêng cho API Server
   ingress:
-    web:
+    apiServer:
       enabled: true
       ingressClassName: alb
       annotations:
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
-      hosts:
-        - name: ""
       path: /
       pathType: Prefix
-
+      # Nếu bạn dùng host cụ thể
+      hosts: 
+        - name: ""
+        
   webserver:
     resources:
       requests:
