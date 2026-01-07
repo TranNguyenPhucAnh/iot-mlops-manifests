@@ -27,13 +27,15 @@ airflow:
       annotations:
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
-        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
       hosts:
         - host: airflow.example.com
           paths:
             - path: /
               pathType: Prefix
       tls: []
+    resources:
+      requests:
+        memory: "512Mi"
     
   # PostgreSQL nội bộ cho Airflow
   postgresql:
@@ -75,12 +77,6 @@ airflow:
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
-
-  # Webserver
-  webserver:
-    resources:
-      requests:
-        memory: "512Mi"
 
   # Scheduler
   scheduler:
