@@ -21,17 +21,17 @@ airflow:
       credentialsSecret: "github-dags-secret"
 
   # Bật khi dùng airflow helm 1.17.0
-  # ingress:
-  #   apiServer:
-  #     enabled: true
-  #     ingressClassName: alb
-  #     annotations:
-  #       alb.ingress.kubernetes.io/scheme: internet-facing
-  #       alb.ingress.kubernetes.io/target-type: ip
-  #     path: /
-  #     pathType: Prefix
-  #     hosts: 
-  #       - name: ""
+  ingress:
+    apiServer:
+      enabled: true
+      ingressClassName: alb
+      annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+      path: /
+      pathType: Prefix
+      hosts: 
+        - name: ""
         
   webserver:
     resources:
@@ -67,7 +67,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: terraform-20260110035632544000000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      host: terraform-20260110045120647400000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
       sslmode: "require"
