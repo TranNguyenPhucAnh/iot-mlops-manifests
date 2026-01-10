@@ -6,6 +6,5 @@ type: application
 version: 1.0.0
 dependencies:
   - name: airflow
-     # version: "1.17.0" # Có ingress
     version: "1.18.0"
     repository: "https://airflow.apache.org"
