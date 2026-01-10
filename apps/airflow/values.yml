@@ -2,14 +2,14 @@
 # Executor (giữ CeleryExecutor mặc định, dùng Redis)
 airflow:
   executor: CeleryExecutor
-  
+
   # Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
   serviceAccount:
     create: true
     annotations:
       # THAY THẾ bằng ARN của IAM Role bạn đã tạo ở phần Terraform (đảm bảo trust đúng namespace/serviceAccount)
       eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-  
+
   # Cấu hình để Airflow tự động lấy code Python (DAG) từ Git
   dags:
     gitSync:
@@ -20,28 +20,28 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
 
-  # Bật khi dùng airflow helm 1.17.0
+  # Cấu hình ingress cho API Server
   ingress:
     apiServer:
-      enabled: true
-      ingressClassName: alb
-      annotations:
-        alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/target-type: ip
-      path: /
-      pathType: Prefix
-      hosts: 
-        - name: ""
-        
+      enabled: false
+      # ingressClassName: alb
+      # annotations:
+      #   alb.ingress.kubernetes.io/scheme: internet-facing
+      #   alb.ingress.kubernetes.io/target-type: ip
+      # path: /
+      # pathType: Prefix
+      # hosts:
+      #   - name: ""
+
   webserver:
     resources:
       requests:
         memory: "512Mi"
-    
+
   # PostgreSQL nội bộ cho Airflow
   postgresql:
     enabled: false
-  
+
   # Redis nội bộ cho CeleryExecutor
   redis:
     enabled: false
@@ -49,18 +49,18 @@ airflow:
   createUserJob:
     useHelmHooks: false
     applyCustomEnv: false
-  
+
   migrateDatabaseJob:
     useHelmHooks: false
     applyCustomEnv: false
     jobAnnotations:
       "argocd.argoproj.io/hook": Sync
-      
+
   waitForMigrations:
     enabled: true
     timeout: 300
     retries: 30
-  
+
   # Cấu hình DB bên ngoài (RDS)
   data:
     metadataConnection:
@@ -77,7 +77,7 @@ airflow:
   config:
     core:
       dags_are_paused_at_creation: "true"
-      load_examples: "false"  # Tắt các DAG mẫu cho nhẹ máy
+      load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
 
   # Scheduler
   scheduler:
@@ -93,16 +93,16 @@ airflow:
         cpu: "100m"
         memory: "256Mi"
     persistence:
-      enabled: false  # Tắt persistence nếu không cần
+      enabled: false # Tắt persistence nếu không cần
 
   # Tắt Triggerer (không dùng)
   triggerer:
     enabled: false
-  
+
   # Tắt StatsD để giảm tài nguyên
   statsd:
     enabled: false
-  
+
   # Tắt flower nếu không cần
   flower:
     enabled: false
