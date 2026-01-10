@@ -20,19 +20,18 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
 
-  # Cấu hình Ingress dành riêng cho API Server
-  ingress:
-    apiServer:
-      enabled: true
-      ingressClassName: alb
-      annotations:
-        alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/target-type: ip
-      path: /
-      pathType: Prefix
-      # Nếu bạn dùng host cụ thể
-      hosts: 
-        - name: ""
+  # Bật khi dùng airflow helm 1.17.0
+  # ingress:
+  #   apiServer:
+  #     enabled: true
+  #     ingressClassName: alb
+  #     annotations:
+  #       alb.ingress.kubernetes.io/scheme: internet-facing
+  #       alb.ingress.kubernetes.io/target-type: ip
+  #     path: /
+  #     pathType: Prefix
+  #     hosts: 
+  #       - name: ""
         
   webserver:
     resources:
@@ -68,7 +67,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: terraform-20260107032119155500000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      host: terraform-20260110035632544000000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
       sslmode: "require"
