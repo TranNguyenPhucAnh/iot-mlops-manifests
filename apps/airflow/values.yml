@@ -91,13 +91,16 @@ airflow:
 
   # Worker (Celery)
   workers:
-    replicas: 1
+    replicas: 1  # Giữ 1 dev
     resources:
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
+      requests:   # Minimum node alloc
+        cpu:    "250m"    # +150m cho DAG parse
+        memory: "1Gi"     # 4x hiện tại (1Gi đủ dev)
+      limits:     # Hard cap tránh OOM toàn node
+        cpu:    "500m"
+        memory: "2Gi"
     persistence:
-      enabled: false # Tắt persistence nếu không cần
+      enabled: false
 
   # Tắt Triggerer (không dùng)
   triggerer:
