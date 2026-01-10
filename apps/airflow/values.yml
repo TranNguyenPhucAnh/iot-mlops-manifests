@@ -16,6 +16,10 @@ airflow:
       enabled: true
       repo: "https://github.com/TranNguyenPhucAnh/iot-mlops-python-dag.git"
       branch: "main"
+      rev: "HEAD"            # Hoặc tag/commit
+      ref: "main"            # Branch ref
+      subPath: ""            # "" nếu DAGs ở root; "dags/" nếu folder dags/
+      depth: 1
       wait: 60
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
