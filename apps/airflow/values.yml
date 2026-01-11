@@ -86,7 +86,7 @@ airflow:
   # Cấu hình cho cả Scheduler và Worker để cả hai đều thấy Connection này
   env:
     - name: "AIRFLOW_CONN_AWS_DEFAULT"
-      value: "aws://?region_name=ap-southeast-1&use_iam_profile=true"
+      value: "aws://?region_name=ap-southeast-1"
 
   # Scheduler
   scheduler:
