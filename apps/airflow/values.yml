@@ -23,6 +23,12 @@ airflow:
       wait: 60
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
+      
+  # Cấu hình Airflow connection
+  connections:
+    - id: aws_default
+      type: aws
+      extra: '{"region_name": "ap-southeast-1"}'
 
   # Cấu hình ingress cho API Server
   ingress:
@@ -82,7 +88,7 @@ airflow:
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
-
+      
   # Scheduler
   scheduler:
     resources:
