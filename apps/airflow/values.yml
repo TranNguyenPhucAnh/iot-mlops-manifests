@@ -24,13 +24,6 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
       
-  # Cấu hình cho cả Scheduler và Worker để cả hai đều thấy Connection này
-  env:
-    - name: "AIRFLOW_CONN_AWS_DEFAULT"
-      # Format: aws://?region_name=ap-southeast-1
-      # Vì không có login/password nên phần host/port để trống
-      value: "aws://?region_name=ap-southeast-1"
-
   # Cấu hình ingress cho API Server
   ingress:
     apiServer:
@@ -90,6 +83,11 @@ airflow:
       dags_are_paused_at_creation: "true"
       load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
       
+  # Cấu hình cho cả Scheduler và Worker để cả hai đều thấy Connection này
+  env:
+    - name: "AIRFLOW_CONN_AWS_DEFAULT"
+      value: "aws://?region_name=ap-southeast-1&use_iam_profile=true"
+
   # Scheduler
   scheduler:
     resources:
