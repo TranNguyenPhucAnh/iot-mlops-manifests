@@ -24,11 +24,12 @@ airflow:
       # Nếu repo private, cần thêm credentials (tạo Kubernetes Secret trước trong namespace airflow)
       credentialsSecret: "github-dags-secret"
       
-  # Cấu hình Airflow connection
-  connections:
-    - id: aws_default
-      type: aws
-      extra: '{"region_name": "ap-southeast-1"}'
+  # Cấu hình cho cả Scheduler và Worker để cả hai đều thấy Connection này
+  env:
+    - name: "AIRFLOW_CONN_AWS_DEFAULT"
+      # Format: aws://?region_name=ap-southeast-1
+      # Vì không có login/password nên phần host/port để trống
+      value: "aws://?region_name=ap-southeast-1"
 
   # Cấu hình ingress cho API Server
   ingress:
@@ -100,10 +101,10 @@ airflow:
     replicas: 1  # Giữ 1 dev
     resources:
       requests:   # Minimum node alloc
-        cpu:    "250m"    # +150m cho DAG parse
+        cpu:    "500m"    # 500m cho DAG parse
         memory: "1Gi"     # 4x hiện tại (1Gi đủ dev)
       limits:     # Hard cap tránh OOM toàn node
-        cpu:    "500m"
+        cpu:    "1Gi"
         memory: "2Gi"
     persistence:
       enabled: false
