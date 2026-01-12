@@ -71,7 +71,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: terraform-20260112043044698900000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      host: 
       port: 5432
       db: airflow
       sslmode: "require"
@@ -82,11 +82,6 @@ airflow:
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
-      
-  # Cấu hình cho cả Scheduler và Worker để cả hai đều thấy Connection này
-  env:
-    - name: "AIRFLOW_CONN_AWS_DEFAULT"
-      value: "aws://?region_name=ap-southeast-1"
 
   # Scheduler
   scheduler:
