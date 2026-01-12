@@ -1,12 +1,4 @@
 # iot-mlops-manifests/apps/airflow/values.yaml
-
-# Sử dụng IAM Role cho Service Account (IRSA) để Airflow có quyền S3/SQS
-serviceAccount:
-  create: true
-  annotations:
-    # THAY THẾ bằng ARN của IAM Role bạn đã tạo ở phần Terraform (đảm bảo trust đúng namespace/serviceAccount)
-    eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-
 # Executor (giữ CeleryExecutor mặc định, dùng Redis)
 airflow:
   executor: CeleryExecutor
@@ -82,8 +74,9 @@ airflow:
   # Scheduler
   scheduler:
     serviceAccount:
-      create: false
-      name: airflow
+      create: true  # ← Để chart tự tạo
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
         memory: "512Mi"
@@ -92,8 +85,9 @@ airflow:
   workers:
     replicas: 1  # Giữ 1 dev
     serviceAccount:
-      create: false  # Dùng chung serviceAccount với scheduler/webserver
-      name: airflow  # Reference đến serviceAccount chính
+      create: true  # ← Để chart tự tạo
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:   # Minimum node alloc
         cpu:    "500m"    # 500m cho DAG parse
@@ -106,8 +100,9 @@ airflow:
       
   webserver:
     serviceAccount:
-      create: false
-      name: airflow
+      create: true  # ← Để chart tự tạo
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
         memory: "512Mi"
