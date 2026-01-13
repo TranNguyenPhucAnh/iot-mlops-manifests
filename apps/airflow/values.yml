@@ -75,7 +75,6 @@ airflow:
       # Thêm config cho S3
       logging_level: 'INFO'
       colored_console_log: 'False'
-      colored_log_format: '[%%(blue)s%%(asctime)s%%(reset)s] {{%%(blue)s%%(filename)s:%%(reset)s%%(lineno)d}} %%(log_color)s%%(levelname)s%%(reset)s - %%(log_color)s%%(message)s%%(reset)s'
     core:
       dags_are_paused_at_creation: "true"
       load_examples: "false" # Tắt các DAG mẫu cho nhẹ máy
