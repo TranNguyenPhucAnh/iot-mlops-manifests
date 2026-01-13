@@ -109,18 +109,6 @@ airflow:
       
   # Scheduler
   scheduler:
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 60
-      periodSeconds: 30
-      timeoutSeconds: 10
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 30
-      periodSeconds: 20
-      timeoutSeconds: 10
-      failureThreshold: 5
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
@@ -136,30 +124,6 @@ airflow:
   # Worker (Celery)
   workers:
     replicas: 1  # Giữ 1 dev
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 60
-      periodSeconds: 30
-      timeoutSeconds: 10
-      failureThreshold: 10
-      exec:
-        command:
-          - sh
-          - -c
-          - |
-            celery -A airflow.providers.celery.executors.celery_executor inspect ping -d celery@$HOSTNAME
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 30
-      periodSeconds: 20
-      timeoutSeconds: 10
-      failureThreshold: 5
-      exec:
-        command:
-          - sh
-          - -c
-          - |
-            celery -A airflow.providers.celery.executors.celery_executor inspect ping -d celery@$HOSTNAME
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
@@ -176,36 +140,6 @@ airflow:
       
   apiServer:
     replicas: 2  # HA setup
-    livenessProbe:
-      enabled: true
-      httpGet:
-        path: /api/v1/health
-        port: 8080
-      initialDelaySeconds: 60
-      periodSeconds: 20
-      timeoutSeconds: 10
-      failureThreshold: 6   # 6 * 20 = 120s cho liveness
-    readinessProbe:
-      enabled: true
-      httpGet:
-        path: /api/v1/health
-        port: 8080
-      initialDelaySeconds: 40
-      periodSeconds: 10
-      timeoutSeconds: 5
-      failureThreshold: 6\
-
-    startupProbe:
-      enabled: true
-      httpGet:
-        # hoặc /health nếu bạn expose route này
-        path: /api/v2/version
-        port: 8080
-      initialDelaySeconds: 10
-      periodSeconds: 10
-      timeoutSeconds: 5
-      failureThreshold: 30  # 30 * 10 = 300s, dư thời gian cho lần start đầu
-
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
@@ -217,6 +151,26 @@ airflow:
       limits:
         memory: "2Gi"
         cpu: "1000m"
+          
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+    failureThreshold: 10
+    periodSeconds: 30
+    httpGet:
+      path: /health
+      port: 8080
+      
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 10
+    periodSeconds: 20
+    httpGet:
+      path: /health
+      port: 8080
 
   # Tắt Triggerer (không dùng)
   triggerer:
