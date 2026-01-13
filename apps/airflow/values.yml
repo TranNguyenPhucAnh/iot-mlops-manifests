@@ -94,7 +94,7 @@ airflow:
       remote_log_conn_id: 'aws_default'
       # Thêm config cho S3
       logging_level: 'INFO'
-      colored_console_log: 'False',
+      colored_console_log: 'False'
       encrypt_s3_logs: 'True'
     core:
       dags_are_paused_at_creation: 'true'
