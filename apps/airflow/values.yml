@@ -98,14 +98,47 @@ airflow:
     persistence:
       enabled: false
       
-  webserver:
+  apiServer:
+    replicas: 2  # HA setup
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
-        memory: "512Mi"
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+          
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+    failureThreshold: 10
+    periodSeconds: 30
+    httpGet:
+      path: /health
+      port: 8080
+      
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 10
+    periodSeconds: 20
+    httpGet:
+      path: /health
+      port: 8080
+  
+  env:
+    - name: AIRFLOW__WEBSERVER__WORKERS
+      value: "2"
+    - name: AIRFLOW__WEBSERVER__WORKER_TIMEOUT
+      value: "120"
+    - name: AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT
+      value: "120"
 
   # Tắt Triggerer (không dùng)
   triggerer:
