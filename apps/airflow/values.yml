@@ -139,38 +139,18 @@ airflow:
       enabled: false
       
   apiServer:
-    replicas: 2  # HA setup
+    replicas: 1  # HA setup
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
         memory: "2Gi"
-        cpu: "1000m"
-          
-  livenessProbe:
-    enabled: true
-    initialDelaySeconds: 60
-    timeoutSeconds: 10
-    failureThreshold: 10
-    periodSeconds: 30
-    httpGet:
-      path: /health
-      port: 8080
-      
-  readinessProbe:
-    enabled: true
-    initialDelaySeconds: 30
-    timeoutSeconds: 10
-    failureThreshold: 10
-    periodSeconds: 20
-    httpGet:
-      path: /health
-      port: 8080
+        cpu: "1Gi"
+      limits:
+        memory: "3Gi"
+        cpu: "2Gi"
 
   # Tắt Triggerer (không dùng)
   triggerer:
