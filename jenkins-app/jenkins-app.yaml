@@ -3,40 +3,31 @@ kind: Application
 metadata:
   name: jenkins
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io  # Prevent delete issues
 spec:
   project: default
-  
   source:
     repoURL: https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git
     targetRevision: HEAD
-    path: apps/jenkins  # Chứa Chart.yaml + values.yaml
-    
-    # Helm config
+    path: apps/jenkins
     helm:
       releaseName: jenkins-cd
       valueFiles:
-        - values.yaml  # File values.yaml của bạn
-    
-    # Sync options tốt cho Jenkins
-    directory:
-      recurse: true
-  
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: jenkins
-  
-  # Sync policy production-ready
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # ✅ Fix: snake_case thay vì camelCase
-      - PrunePropagationPolicy=foreground  # Safe delete
-      - PruneLast=true  # Chỉ prune lần cuối
-      - Replace=true  # Force replace conflicting resources
+      - CreateNamespace=true
+      - Replace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
     retry:
       limit: 5
-      backoff: 5s
+      backoff:
+        duration: "5s"
+        factor: 2
+        maxDuration: "3m"
