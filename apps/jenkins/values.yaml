@@ -1,7 +1,22 @@
 jenkins:
   controller:
-    componentName: jenkins-controller
   
+    envFrom:
+      - secretRef:
+          name: jenkins-jcasc-secrets
+        
+    JCasC:
+      enabled: true
+      configScripts:
+        01-security: |
+          # security.yaml content
+        02-kubernetes-cloud: |
+          # kubernetes-cloud.yaml content
+        03-credentials: |
+          # credentials.yaml content
+      
+    componentName: jenkins-controller
+
     image:
       repository: jenkins/jenkins
       tag: "lts-jdk17"
@@ -20,9 +35,9 @@ jenkins:
     # =====================
     adminUser: admin
     admin:
-      existingSecret: jenkins-admin-secret
-      userKey: jenkins-admin-user
-      passwordKey: jenkins-admin-password
+      existingSecret: JENKINS-ADMIN-SECRET
+      userKey: JENKINS-ADMIN-USER
+      passwordKey: JENKINS-ADMIN-PASSWORD
   
     # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
     javaOpts: >
@@ -40,6 +55,7 @@ jenkins:
       - amazon-ecr:1.96
       - pipeline-model-definition:2.2150.v4cfd8916915a
       - docker-workflow:572.v350f58d6ad00
+      - configuration-as-code:1799.v0ec00e12e81ab_3
       # blueocean KHÔNG khuyến khích cho prod lâu dài
       # - blueocean:1.27.10
   
