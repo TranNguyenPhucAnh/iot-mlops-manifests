@@ -1,0 +1,99 @@
+jenkins:
+  controller:
+  
+    envFrom:
+      - secretRef:
+          name: jenkins-jcasc-secrets
+        
+    JCasC:
+      enabled: true
+      configScripts:
+        01-security: |
+          # security.yaml content
+        02-kubernetes-cloud: |
+          # kubernetes-cloud.yaml content
+        03-credentials: |
+          # credentials.yaml content
+      
+    componentName: jenkins-controller
+
+    image:
+      repository: jenkins/jenkins
+      tag: "lts-jdk17"
+  
+    # =====================
+    # ServiceAccount + IRSA
+    # =====================
+    serviceAccount:
+      create: false               # Terraform quản lý SA
+      name: jenkins-sa
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
+  
+    # =====================
+    # Security bootstrap
+    # =====================
+    adminUser: admin
+    admin:
+      existingSecret: JENKINS-ADMIN-SECRET
+      userKey: JENKINS-ADMIN-USER
+      passwordKey: JENKINS-ADMIN-PASSWORD
+  
+    # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
+    javaOpts: >
+      -Xms512m
+      -Xmx1024m
+      -Djenkins.install.runSetupWizard=false
+  
+    # =====================
+    # Plugins (PIN VERSION)
+    # =====================
+    installPlugins:
+      - kubernetes:4205.v1530225d539e
+      - workflow-aggregator:596.v8c21c963d92d
+      - git:5.2.1
+      - amazon-ecr:1.96
+      - pipeline-model-definition:2.2150.v4cfd8916915a
+      - docker-workflow:572.v350f58d6ad00
+      - configuration-as-code:1799.v0ec00e12e81ab_3
+      # blueocean KHÔNG khuyến khích cho prod lâu dài
+      # - blueocean:1.27.10
+  
+    # =====================
+    # Resources
+    # =====================
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+  
+    # =====================
+    # Service
+    # =====================
+    serviceType: ClusterIP
+    servicePort: 8080
+  
+    # =====================
+    # Kubernetes Cloud (Agents)
+    # =====================
+    # Plugin kubernetes đã xử lý phần này
+    # Không cần enable riêng
+  
+  agent:
+    enabled: true
+    image:
+      repository: jenkins/inbound-agent
+      tag: "latest"
+    namespace: jenkins
+  
+  rbac:
+    create: true
+    clusterRead: true   # Cho Jenkins dùng kubectl / K8s plugin
+  
+  persistence:
+    enabled: true
+    storageClass: gp3
+    size: 8Gi
