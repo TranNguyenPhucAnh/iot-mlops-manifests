@@ -1,13 +1,13 @@
 jenkins:
   controller:
   
-    envFrom:
+    envFrom: #load Kubernetes Secrets định nghĩa trong jenkins-secret.yaml
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    JCasC:
+    JCasC: 
       enabled: true
-      configScripts:
+      configScripts: #load scripts định nghĩa JCasC
         01-security: |
           # security.yaml content
         02-kubernetes-cloud: |
