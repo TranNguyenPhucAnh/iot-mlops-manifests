@@ -144,13 +144,13 @@ airflow:
       create: true  # ← Để chart tự tạo
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-    resources:
+   resources:
       requests:
         cpu: "1000m"
         memory: "2Gi"
       limits:
-        cpu: "1500m"
-        memory: "3Gi"
+        cpu: "2000m"
+        memory: "4Gi"
 
   # Tắt Triggerer (không dùng)
   triggerer:
