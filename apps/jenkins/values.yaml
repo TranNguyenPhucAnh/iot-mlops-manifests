@@ -5,15 +5,15 @@ jenkins:
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    JCasC: 
+    JCasC:
       enabled: true
-      configScripts: #load scripts định nghĩa JCasC
-        01-security: |
-          # security.yaml content
-        02-kubernetes-cloud: |
-          # kubernetes-cloud.yaml content
-        03-credentials: |
-          # credentials.yaml content
+      configScripts:
+        security: |
+  {{ .Files.Get "jcasc/security.yaml" | indent 8 }}
+        kubernetes: |
+  {{ .Files.Get "jcasc/kubernetes-cloud.yaml" | indent 8 }}
+        credentials: |
+  {{ .Files.Get "jcasc/credentials.yaml" | indent 8 }}
       
     componentName: jenkins-controller
 
