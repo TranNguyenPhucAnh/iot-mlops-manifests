@@ -5,7 +5,7 @@ jenkins:
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    JCasC: 
+    JCasC:
       enabled: true
       configUrls: #load scripts định nghĩa JCasC
         - "file:///var/jenkins_home/external-casc"  # Mount ConfigMap
