@@ -35,7 +35,7 @@ jenkins:
     # =====================
     admin:
       username: admin
-      existingSecret: JENKINS-ADMIN-SECRET
+      existingSecret: jenkins-jcasc-secrets
       userKey: JENKINS-ADMIN-USER
       passwordKey: JENKINS-ADMIN-PASSWORD
   
