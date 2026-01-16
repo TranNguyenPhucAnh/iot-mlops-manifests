@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc-external
+data:
+{{- range $path, $content := .Files.Glob "jcasc/*.yaml" }}
+  {{ base $path }}: {{ $.Files.Get $path | nindent 2 }}
+{{- end }}
