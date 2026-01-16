@@ -18,7 +18,6 @@ spec:
       releaseName: jenkins-cd
       valueFiles:
         - values.yaml # File values.yaml của bạn
-  sources: []
   project: default
   syncPolicy:   # Sync policy production-ready
     automated:
