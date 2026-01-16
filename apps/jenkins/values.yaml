@@ -49,13 +49,13 @@ jenkins:
     # Plugins (PIN VERSION)
     # =====================
     installPlugins:
-      - kubernetes:latest
-      - workflow-aggregator:latest
-      - git:latest
-      - amazon-ecr:latest
-      - pipeline-model-definition:latest
-      - docker-workflow:latest
-      - configuration-as-code:latest
+      - kubernetes:4246.v5a_12b_1fe120e  # phiên bản mới hơn
+      - workflow-aggregator:596.v8c21c963d92d
+      - git:5.2.2
+      - amazon-ecr:1.96
+      - pipeline-model-definition:2.2214.vb_b_34b_2ea_9b_83
+      - docker-workflow:580.vc0c340686b_54
+      - configuration-as-code:1850.va_a_8c31d3158b_
       # blueocean KHÔNG khuyến khích cho prod lâu dài
       # - blueocean:1.27.10
   
