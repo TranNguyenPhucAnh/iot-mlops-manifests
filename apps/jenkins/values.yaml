@@ -5,11 +5,20 @@ jenkins:
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    JCasC:
+    JCasC:          
+      defaultConfig: false
+    persistence:
       enabled: true
-      configUrls:
-        - "file:///var/jenkins_home/external-casc"  # Mount ConfigMap
- 
+      existingClaim: efs-claim-jenkins
+    volumes:
+      - name: jenkins-custom-casc-config
+        configMap:
+          name: jenkins-custom-casc-config
+    mounts:
+      - mountPath: /var/jenkins_home/casc_configs/custom
+        name: jenkins-custom-casc-config
+        readOnly: true
+
     componentName: jenkins-controller
 
     image:
