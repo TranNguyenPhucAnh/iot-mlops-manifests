@@ -79,7 +79,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: terraform-2026011503265302530000000f.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
+      host: terraform-20260116055023945900000010.c1cai26e25hh.ap-southeast-1.rds.amazonaws.com
       port: 5432
       db: airflow
       sslmode: "require"
