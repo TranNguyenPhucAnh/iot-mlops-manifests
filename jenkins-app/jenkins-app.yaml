@@ -27,8 +27,10 @@ spec:
     syncOptions:
       - CreateNamespace=true  # ✅ Fix: snake_case thay vì camelCase
       - PrunePropagationPolicy=foreground # Safe delete
-      - PruneLast=true # Chỉ prune lần cuối
+      - Prune=true
       - Replace=true # Force replace conflicting resources
+      - ServerSideApply=true    # ✅ Handle existing resources
+      - ApplyOutOfSyncOnly=true # ✅ Chỉ sync diff
     retry:
       limit: 5
       backoff:
