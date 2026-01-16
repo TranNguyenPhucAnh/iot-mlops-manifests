@@ -7,8 +7,13 @@ jenkins:
         
     JCasC:
       enabled: true
-      configUrls: #load scripts định nghĩa JCasC
-        - "file:///var/jenkins_home/external-casc"  # Mount ConfigMap
+      configScripts:
+          security: |
+    {{ .Files.Get "jcasc/security.yaml" | indent 8 }}
+          kubernetes: |
+    {{ .Files.Get "jcasc/kubernetes-cloud.yaml" | indent 8 }}
+          credentials: |
+    {{ .Files.Get "jcasc/credentials.yaml" | indent 8 }}
       
     componentName: jenkins-controller
 
