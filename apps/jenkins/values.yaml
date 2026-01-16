@@ -36,8 +36,8 @@ jenkins:
     admin:
       username: admin
       existingSecret: jenkins-jcasc-secrets
-      userKey: JENKINS-ADMIN-USER
-      passwordKey: JENKINS-ADMIN-PASSWORD
+      userKey: JENKINS_ADMIN_USER
+      passwordKey: JENKINS_ADMIN_PASSWORD
   
     # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
     javaOpts: >
