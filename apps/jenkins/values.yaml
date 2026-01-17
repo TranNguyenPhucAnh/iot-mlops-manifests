@@ -40,7 +40,7 @@ jenkins:
                   maxRequestsPerHostStr: "32"
                   jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080"
                   jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000"
-                  podTemplates:
+                  templates:
                     - name: "mlops-agent"
                       label: "mlops"
                       serviceAccount: "jenkins-sa"
