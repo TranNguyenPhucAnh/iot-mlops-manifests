@@ -4,7 +4,25 @@ jenkins:
     containerEnv:
       - name: CASC_JENKINS_CONFIG
         value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom_casc_configs"
-   
+        
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-jcasc-secrets
+            key: GITHUB_TOKEN
+            
+      - name: DOCKER_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-jcasc-secrets
+            key: DOCKER_USERNAME
+            
+      - name: DOCKER_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-jcasc-secrets
+            key: DOCKER_PASSWORD
+            
     componentName: jenkins-controller
 
     image:
@@ -16,14 +34,6 @@ jenkins:
       name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
-
-    additionalExistingSecrets:
-    - name: jenkins-jcasc-secrets
-      keyName: GITHUB_TOKEN
-    - name: jenkins-jcasc-secrets
-      keyName: DOCKER_USERNAME
-    - name: jenkins-jcasc-secrets
-      keyName: DOCKER_PASSWORD
 
     admin:
       existingSecret: jenkins-jcasc-secrets
