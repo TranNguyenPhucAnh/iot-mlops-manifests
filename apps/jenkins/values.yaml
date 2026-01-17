@@ -4,27 +4,20 @@ jenkins:
     envFrom: #load Kubernetes Secrets định nghĩa trong jenkins-secret.yaml
       - secretRef:
           name: jenkins-jcasc-secrets
-
-    envVars:
-      - name: CASC_JENKINS_CONFIG
-        value: "/var/jenkins_home/casc_configs"
-      
-    sidecars:
-      configAutoReload:
-        enabled: true # Tự động reload khi ConfigMap thay đổi (rất hữu ích)
         
-    JCasC:
-      enabled: true
-      defaultConfig: false
-      
-    # =======================
-    # VOLUMES - CHART NATIVE
-    # =======================
-    volumes:
-    # ConfigMap JCasC (Terraform tạo)
-      - type: ConfigMap
-        configMapName: jenkins-custom-casc-config # Terraform resource
-        mountPath: /var/jenkins_home/casc_configs
+      JCasC:          
+        defaultConfig: false
+      persistence:
+        enabled: true
+        existingClaim: efs-claim-jenkins
+      volumes:
+        - name: jenkins-custom-casc-config
+          configMap:
+            name: jenkins-custom-casc-config
+      mounts:
+        - mountPath: /var/jenkins_home/casc_configs/custom
+          name: jenkins-custom-casc-config
+          readOnly: true
 
     componentName: jenkins-controller
 
@@ -104,7 +97,7 @@ jenkins:
     create: true
     clusterRead: true   # Cho Jenkins dùng kubectl / K8s plugin
   
-  persistence:
-    enabled: true
-    storageClass: gp3
-    size: 8Gi
+  # persistence:
+  #   enabled: true
+  #   storageClass: gp3
+  #   size: 8Gi
