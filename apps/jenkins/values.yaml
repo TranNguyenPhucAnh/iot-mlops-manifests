@@ -88,10 +88,6 @@ jenkins:
                         - "View/Read"
                       assignments: []
                       
-          unclassified:
-            location:
-              url: "https://jenkins.example.com"
-
     componentName: jenkins-controller
 
     image:
