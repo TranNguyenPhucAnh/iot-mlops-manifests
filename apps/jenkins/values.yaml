@@ -72,13 +72,11 @@ jenkins:
               roleBased:
                 roles:
                   global:
-                    - name: admin
+                    - name: "admin"
                       description: "Jenkins administrators"
                       permissions:
                         - "Overall/Administer"
-                      assignments:
-                        - "${JENKINS_ADMIN_USER}"
-                    - name: developer
+                    - name: "developer"
                       description: "Developers"
                       permissions:
                         - "Overall/Read"
@@ -86,6 +84,18 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
+                
+                # Assign users to roles - cấu trúc mới
+                roleAssignments:
+                  global:
+                    - role: "admin"
+                      users:
+                        - "${JENKINS_ADMIN_USER}"
+                    # Uncomment khi cần assign developers
+                    # - role: "developer"
+                    #   users:
+                    #     - "user1"
+                    #     - "user2"
                       
     componentName: jenkins-controller
 
