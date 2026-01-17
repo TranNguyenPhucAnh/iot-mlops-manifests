@@ -75,7 +75,17 @@ jenkins:
                     - name: "admin"
                       description: "Jenkins administrators"
                       permissions:
+                        - "Overall/Read"
                         - "Overall/Administer"
+                        - "Job/Read"
+                        - "Job/Build"
+                        - "Job/Create"
+                        - "Job/Configure"
+                        - "Job/Delete"
+                        - "Job/Cancel"
+                        - "Job/Move"
+                        - "SCM/Tag"
+                        - "SCM/Admin"
                       entries:
                         - user: "${JENKINS_ADMIN_USER}"
                     - name: "developer"
@@ -87,7 +97,7 @@ jenkins:
                         - "Job/Workspace"
                         - "View/Read"
                       entries:
-                        - user: "authenticated"  # All logged-in users
+                        - user: "authenticated"
 
     componentName: jenkins-controller
 
