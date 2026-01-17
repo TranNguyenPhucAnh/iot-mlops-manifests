@@ -67,7 +67,7 @@ jenkins:
                 users:
                   - id: "${JENKINS_ADMIN_USER}"
                     password: "${JENKINS_ADMIN_PASSWORD}"
-            
+          
             authorizationStrategy:
               roleBased:
                 roles:
@@ -76,6 +76,9 @@ jenkins:
                       description: "Jenkins administrators"
                       permissions:
                         - "Overall/Administer"
+                      entries:  # ← Thay assignments bằng entries
+                        - user: "${JENKINS_ADMIN_USER}"
+                    
                     - name: "developer"
                       description: "Developers"
                       permissions:
@@ -84,18 +87,7 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
-                
-                # Assign users to roles - cấu trúc mới
-                roleAssignments:
-                  global:
-                    - role: "admin"
-                      users:
-                        - "${JENKINS_ADMIN_USER}"
-                    # Uncomment khi cần assign developers
-                    # - role: "developer"
-                    #   users:
-                    #     - "user1"
-                    #     - "user2"
+                      entries: []  # ← Empty list nếu chưa có user
                       
     componentName: jenkins-controller
 
