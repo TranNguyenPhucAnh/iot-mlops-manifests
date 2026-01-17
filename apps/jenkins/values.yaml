@@ -15,7 +15,7 @@ jenkins:
         configMap:
           name: jenkins-custom-casc-config
     mounts:
-      - mountPath: /var/jenkins_home/casc_configs/custom
+      - mountPath: /var/jenkins_home/casc_configs
         name: jenkins-custom-casc-config
         readOnly: true
 
