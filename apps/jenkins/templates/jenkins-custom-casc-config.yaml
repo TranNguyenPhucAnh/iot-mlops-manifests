@@ -4,12 +4,13 @@ metadata:
   name: jenkins-custom-casc-config
   namespace: jenkins
 data:
-
   credentials.yaml: |
+    unclassified:
+      globalLibraries:
+        libraries: []
     credentials:
       system:
         domainCredentials:
-          - domain: null
             credentials:
   
               - string:
