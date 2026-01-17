@@ -9,21 +9,20 @@ jenkins:
       enabled: true
       defaultConfig: false
       
-    extraVolumes:
-      - name: jenkins-custom-casc-config
-        configMap:
-          name: jenkins-custom-casc-config
-
-    extraVolumeMounts:
-      - name: jenkins-custom-casc-config
+    # =======================
+    # VOLUMES - CHART NATIVE
+    # =======================
+    volumes:
+    # ConfigMap JCasC (Terraform tạo)
+      - type: ConfigMap
+        configMapName: jenkins-custom-casc-config # Terraform resource
         mountPath: /var/jenkins_home/casc_configs
-        readOnly: true
 
     componentName: jenkins-controller
 
     image:
       repository: jenkins/jenkins
-      tag: "lts-jdk17"
+      tag: "latest"
   
     # =====================
     # ServiceAccount + IRSA
