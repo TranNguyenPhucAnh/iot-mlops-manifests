@@ -86,7 +86,6 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
-                      assignments: []
                       
     componentName: jenkins-controller
 
