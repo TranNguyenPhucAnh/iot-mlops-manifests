@@ -87,7 +87,6 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
-                      entries: []  # ← Empty list nếu chưa có user
                       
     componentName: jenkins-controller
 
