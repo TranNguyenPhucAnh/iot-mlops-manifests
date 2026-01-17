@@ -60,18 +60,19 @@ jenkins:
         # =====================
         # 1. SECURITY - Tạo user trước tiên
         # =====================
-        securityRealm: |-
-          securityRealm:
-            local:
-              allowsSignup: false
-              enableCaptcha: false
-            users:
-            - id: "${chart-admin-username}"
-              name: "Jenkins Admin"
-              password: "${chart-admin-password}"
-          authorizationStrategy:
-            loggedInUsersCanDoAnything:
-              allowAnonymousRead: false
+        security: |-
+          jenkins:
+            securityRealm:
+              local:
+                allowsSignup: false
+                enableCaptcha: false
+              users:
+              - id: "${chart-admin-username}"
+                name: "Jenkins Admin"
+                password: "${chart-admin-password}"
+            authorizationStrategy:
+              loggedInUsersCanDoAnything:
+                allowAnonymousRead: false
           # jenkins:
           #   securityRealm:
           #     local:
