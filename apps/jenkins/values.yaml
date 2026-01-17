@@ -7,7 +7,7 @@ jenkins:
 
     envVars:
       - name: CASC_JENKINS_CONFIG
-        value: "/var/jenkins_home/casc_configs/custom"
+        value: "/var/jenkins_home/casc_configs"
       
     sidecars:
       configAutoReload:
@@ -16,7 +16,6 @@ jenkins:
     JCasC:
       enabled: true
       defaultConfig: false
-      configScripts: {}   # Tắt inline config
       
     # =======================
     # VOLUMES - CHART NATIVE
@@ -25,7 +24,7 @@ jenkins:
     # ConfigMap JCasC (Terraform tạo)
       - type: ConfigMap
         configMapName: jenkins-custom-casc-config # Terraform resource
-        mountPath: /var/jenkins_home/casc_configs/custom
+        mountPath: /var/jenkins_home/casc_configs
 
     componentName: jenkins-controller
 
