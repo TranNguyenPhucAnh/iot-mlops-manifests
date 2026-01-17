@@ -5,19 +5,18 @@ jenkins:
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    JCasC:          
-      defaultConfig: false
+    containerEnv:
+      - name: CASC_JENKINS_CONFIG
+        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom-casc_configs"
+     
     persistence:
-      enabled: true
-      existingClaim: efs-claim-jenkins
-    volumes:
-      - name: jenkins-custom-casc-config
-        configMap:
+      volumes:
+        - name: jenkins-custom-casc-config
+          configMap:
           name: jenkins-custom-casc-config
-    mounts:
-      - mountPath: /var/jenkins_home/casc_configs/custom
-        name: jenkins-custom-casc-config
-        readOnly: true
+      mounts:
+        - mountPath: /var/jenkins_home/custom-casc_configs
+          name: jenkins-custom-casc-config
 
     componentName: jenkins-controller
 
