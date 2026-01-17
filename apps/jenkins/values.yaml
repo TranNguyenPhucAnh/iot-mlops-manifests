@@ -51,6 +51,7 @@ jenkins:
         # =====================
         # 1. SECURITY - Tạo user trước tiên
         # =====================
+        security: |-
           jenkins:
             securityRealm:
               local:
