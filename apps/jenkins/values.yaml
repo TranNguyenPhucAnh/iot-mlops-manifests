@@ -1,6 +1,10 @@
 jenkins:
   controller:
   
+    containerEnv:
+      - name: CASC_JENKINS_CONFIG
+        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom-casc_configs"
+   
     componentName: jenkins-controller
 
     image:
@@ -44,111 +48,6 @@ jenkins:
     serviceType: ClusterIP
     servicePort: 8080
   
-    JCasC:
-      defaultConfig: true
-      
-      configScripts:
-        # =====================
-        # 1. SECURITY - Tạo user trước tiên
-        # =====================
-        security: |-
-          jenkins:
-            securityRealm:
-              local:
-                allowsSignup: false
-                users:
-                  - id: "${JENKINS_ADMIN_USER}"
-                    password: "${JENKINS_ADMIN_PASSWORD}"
-            
-            authorizationStrategy:
-              roleBased:
-                roles:
-                  global:
-                    - name: "admin"
-                      description: "Jenkins administrators"
-                      permissions:
-                        - "Overall/Administer"
-                      entries:
-                        - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
-                    
-                    - name: "developer"
-                      description: "Developers"
-                      permissions:
-                        - "Overall/Read"
-                        - "Job/Read"
-                        - "Job/Build"
-                        - "Job/Workspace"
-                        - "View/Read"
-                      entries:
-                        - user: "authenticated"
-        
-        # =====================
-        # 2. CREDENTIALS
-        # =====================
-        credentials: |-
-          credentials:
-            system:
-              domainCredentials:
-                - credentials:
-                    - string:
-                        scope: GLOBAL
-                        id: github-token
-                        description: "GitHub Personal Access Token"
-                        secret: "${GITHUB_TOKEN}"
-                    
-                    - usernamePassword:
-                        scope: GLOBAL
-                        id: docker-registry
-                        description: "Docker registry credential"
-                        username: "${DOCKER_USERNAME}"
-                        password: "${DOCKER_PASSWORD}"
-        
-        # =====================
-        # 3. KUBERNETES CLOUD
-        # =====================
-        kubernetes-cloud: |-
-          jenkins:
-            clouds:
-              - kubernetes:
-                  name: "kubernetes"
-                  serverUrl: "https://kubernetes.default.svc"
-                  namespace: "jenkins"
-                  jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080"
-                  jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000"
-                  containerCapStr: "10"
-                  maxRequestsPerHostStr: "32"
-                  
-                  templates:
-                    - name: "default-agent"
-                      label: "jenkins-agent"
-                      serviceAccount: "jenkins-sa"
-                      idleMinutes: 5
-                      containers:
-                        - name: "jnlp"
-                          image: "jenkins/inbound-agent:latest"
-                          args: "^${computer.jnlpmac} ^${computer.name}"
-                          resourceRequestCpu: "500m"
-                          resourceRequestMemory: "512Mi"
-                          resourceLimitCpu: "1000m"
-                          resourceLimitMemory: "1Gi"
-                    
-                    - name: "mlops-agent"
-                      label: "mlops"
-                      serviceAccount: "jenkins-sa"
-                      idleMinutes: 5
-                      containers:
-                        - name: "jnlp"
-                          image: "your-docker-registry/jenkins-agent-mlops:latest"
-                          args: "^${computer.jnlpmac} ^${computer.name}"
-                          resourceRequestCpu: "500m"
-                          resourceRequestMemory: "1Gi"
-                          resourceLimitCpu: "2000m"
-                          resourceLimitMemory: "4Gi"
-                      volumes:
-                        - emptyDirVolume:
-                            mountPath: "/tmp"
-                            memory: false
-
   agent:
     enabled: true
     image:
@@ -160,6 +59,10 @@ jenkins:
     readSecrets: true
   
   persistence:
-    enabled: true
-    storageClass: gp3
-    size: 8Gi
+    volumes:
+      - name: jenkins-custom-casc-config
+        configMap:
+        name: jenkins-custom-casc-config
+    mounts:
+      - mountPath: /var/jenkins_home/custom-casc_configs
+        name: jenkins-custom-casc-config
