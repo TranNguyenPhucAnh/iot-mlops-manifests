@@ -1,10 +1,6 @@
 jenkins:
   controller:
   
-    envFrom:
-      - secretRef:
-          name: jenkins-jcasc-secrets
-
     componentName: jenkins-controller
 
     image:
@@ -17,16 +13,11 @@ jenkins:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
   
-    # =====================
-    # Admin config - QUAN TRỌNG
-    # =====================
     admin:
-      # Không dùng username hardcode, để JCasC handle
       existingSecret: jenkins-jcasc-secrets
       userKey: JENKINS_ADMIN_USER
       passwordKey: JENKINS_ADMIN_PASSWORD
   
-    # Tắt setup wizard
     javaOpts: >
       -Xms512m
       -Xmx1024m
@@ -60,48 +51,35 @@ jenkins:
         # =====================
         # 1. SECURITY - Tạo user trước tiên
         # =====================
-        security: |-
           jenkins:
             securityRealm:
               local:
                 allowsSignup: false
-                enableCaptcha: false
-              users:
-              - id: "${chart-admin-username}"
-                name: "Jenkins Admin"
-                password: "${chart-admin-password}"
-            authorizationStrategy:
-              loggedInUsersCanDoAnything:
-                allowAnonymousRead: false
-          # jenkins:
-          #   securityRealm:
-          #     local:
-          #       allowsSignup: false
-          #       users:
-          #         - id: "${JENKINS_ADMIN_USER}"
-          #           password: "${JENKINS_ADMIN_PASSWORD}"
+                users:
+                  - id: "${JENKINS_ADMIN_USER}"
+                    password: "${JENKINS_ADMIN_PASSWORD}"
             
-          #   authorizationStrategy:
-          #     roleBased:
-          #       roles:
-          #         global:
-          #           - name: "admin"
-          #             description: "Jenkins administrators"
-          #             permissions:
-          #               - "Overall/Administer"
-          #             entries:
-          #               - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
+            authorizationStrategy:
+              roleBased:
+                roles:
+                  global:
+                    - name: "admin"
+                      description: "Jenkins administrators"
+                      permissions:
+                        - "Overall/Administer"
+                      entries:
+                        - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
                     
-          #           - name: "developer"
-          #             description: "Developers"
-          #             permissions:
-          #               - "Overall/Read"
-          #               - "Job/Read"
-          #               - "Job/Build"
-          #               - "Job/Workspace"
-          #               - "View/Read"
-          #             entries:
-          #               - user: "authenticated"
+                    - name: "developer"
+                      description: "Developers"
+                      permissions:
+                        - "Overall/Read"
+                        - "Job/Read"
+                        - "Job/Build"
+                        - "Job/Workspace"
+                        - "View/Read"
+                      entries:
+                        - user: "authenticated"
         
         # =====================
         # 2. CREDENTIALS
