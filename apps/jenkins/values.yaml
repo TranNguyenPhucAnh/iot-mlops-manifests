@@ -34,6 +34,15 @@ jenkins:
       name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
+        
+    existingSecret: jenkins-jcasc-secrets
+    
+    additionalSecrets:
+      - name: jenkins-jcasc-secrets
+        keys:
+          - GITHUB_TOKEN
+          - DOCKER_USERNAME
+          - DOCKER_PASSWORD
 
     admin:
       existingSecret: jenkins-jcasc-secrets
