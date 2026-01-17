@@ -3,7 +3,7 @@ jenkins:
   
     containerEnv:
       - name: CASC_JENKINS_CONFIG
-        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom-casc_configs"
+        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom_casc_configs"
    
     componentName: jenkins-controller
 
