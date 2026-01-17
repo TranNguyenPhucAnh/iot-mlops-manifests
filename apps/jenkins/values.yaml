@@ -60,36 +60,47 @@ jenkins:
         # =====================
         # 1. SECURITY - Tạo user trước tiên
         # =====================
-        security: |-
-          jenkins:
-            securityRealm:
-              local:
-                allowsSignup: false
-                users:
-                  - id: "${JENKINS_ADMIN_USER}"
-                    password: "${JENKINS_ADMIN_PASSWORD}"
+        securityRealm: |-
+          securityRealm:
+            local:
+              allowsSignup: false
+              enableCaptcha: false
+            users:
+            - id: "${chart-admin-username}"
+              name: "Jenkins Admin"
+              password: "${chart-admin-password}"
+          authorizationStrategy:
+            loggedInUsersCanDoAnything:
+              allowAnonymousRead: false
+          # jenkins:
+          #   securityRealm:
+          #     local:
+          #       allowsSignup: false
+          #       users:
+          #         - id: "${JENKINS_ADMIN_USER}"
+          #           password: "${JENKINS_ADMIN_PASSWORD}"
             
-            authorizationStrategy:
-              roleBased:
-                roles:
-                  global:
-                    - name: "admin"
-                      description: "Jenkins administrators"
-                      permissions:
-                        - "Overall/Administer"
-                      entries:
-                        - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
+          #   authorizationStrategy:
+          #     roleBased:
+          #       roles:
+          #         global:
+          #           - name: "admin"
+          #             description: "Jenkins administrators"
+          #             permissions:
+          #               - "Overall/Administer"
+          #             entries:
+          #               - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
                     
-                    - name: "developer"
-                      description: "Developers"
-                      permissions:
-                        - "Overall/Read"
-                        - "Job/Read"
-                        - "Job/Build"
-                        - "Job/Workspace"
-                        - "View/Read"
-                      entries:
-                        - user: "authenticated"
+          #           - name: "developer"
+          #             description: "Developers"
+          #             permissions:
+          #               - "Overall/Read"
+          #               - "Job/Read"
+          #               - "Job/Build"
+          #               - "Job/Workspace"
+          #               - "View/Read"
+          #             entries:
+          #               - user: "authenticated"
         
         # =====================
         # 2. CREDENTIALS
