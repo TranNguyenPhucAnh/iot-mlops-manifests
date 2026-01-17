@@ -67,27 +67,28 @@ jenkins:
                 users:
                   - id: "${JENKINS_ADMIN_USER}"
                     password: "${JENKINS_ADMIN_PASSWORD}"
-          
+            
             authorizationStrategy:
               roleBased:
                 roles:
                   global:
-                    - name: "admin"
-                      description: "Jenkins administrators"
-                      permissions:
-                        - "Overall/Administer"
-                      entries:  # ← Thay assignments bằng entries
-                        - user: "${JENKINS_ADMIN_USER}"
-                    
-                    - name: "developer"
-                      description: "Developers"
-                      permissions:
-                        - "Overall/Read"
-                        - "Job/Read"
-                        - "Job/Build"
-                        - "Job/Workspace"
-                        - "View/Read"
-                      
+                    - "admin":
+                        description: "Jenkins administrators"
+                        permissions:
+                          - "Overall/Administer"
+                        grants:
+                          - "${JENKINS_ADMIN_USER}"
+                    - "developer":
+                        description: "Developers"
+                        permissions:
+                          - "Overall/Read"
+                          - "Job/Read"
+                          - "Job/Build"
+                          - "Job/Workspace"
+                          - "View/Read"
+                        grants:
+                          - "authenticated"  # All logged-in users
+            
     componentName: jenkins-controller
 
     image:
