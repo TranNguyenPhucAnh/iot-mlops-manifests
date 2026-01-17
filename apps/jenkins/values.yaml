@@ -87,9 +87,7 @@ jenkins:
                         - "Job/Workspace"
                         - "View/Read"
                       assignments: []
-            
-            crumbIssuer: "standard"
-          
+                      
           unclassified:
             location:
               url: "https://jenkins.example.com"
