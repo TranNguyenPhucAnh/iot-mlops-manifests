@@ -4,7 +4,69 @@ jenkins:
     envFrom: #load Kubernetes Secrets định nghĩa trong jenkins-secret.yaml
       - secretRef:
           name: jenkins-jcasc-secrets
-        
+
+    componentName: jenkins-controller
+
+    image:
+      repository: jenkins/jenkins
+      tag: "lts"
+  
+    # =====================
+    # ServiceAccount + IRSA
+    # =====================
+    serviceAccount:
+      create: false               # Terraform quản lý SA
+      name: jenkins-sa
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
+  
+    # =====================
+    # Security bootstrap
+    # =====================
+    admin:
+      username: admin
+      existingSecret: jenkins-jcasc-secrets
+      userKey: JENKINS_ADMIN_USER
+      passwordKey: JENKINS_ADMIN_PASSWORD
+  
+    # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
+    javaOpts: >
+      -Xms512m
+      -Xmx1024m
+      -Djenkins.install.runSetupWizard=false
+  
+    # =====================
+    # Plugins (PIN VERSION)
+    # =====================
+    installPlugins:
+      - kubernetes
+      - workflow-aggregator
+      - git
+      - amazon-ecr
+      - pipeline-model-definition
+      - docker-workflow
+      - configuration-as-code
+      - role-strategy
+      # blueocean KHÔNG khuyến khích cho prod lâu dài
+      # - blueocean:1.27.10
+  
+    # =====================
+    # Resources
+    # =====================
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+  
+    # =====================
+    # Service
+    # =====================
+    serviceType: ClusterIP
+    servicePort: 8080
+  
     JCasC:
       defaultConfig: true  # ← Giữ default config
       
@@ -98,75 +160,6 @@ jenkins:
                         - "View/Read"
                       entries:
                         - user: "authenticated"
-
-    componentName: jenkins-controller
-
-    image:
-      repository: jenkins/jenkins
-      tag: "lts"
-  
-    # =====================
-    # ServiceAccount + IRSA
-    # =====================
-    serviceAccount:
-      create: false               # Terraform quản lý SA
-      name: jenkins-sa
-      annotations:
-        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
-  
-    # =====================
-    # Security bootstrap
-    # =====================
-    admin:
-      username: admin
-      existingSecret: jenkins-jcasc-secrets
-      userKey: JENKINS_ADMIN_USER
-      passwordKey: JENKINS_ADMIN_PASSWORD
-  
-    # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
-    javaOpts: >
-      -Xms512m
-      -Xmx1024m
-      -Djenkins.install.runSetupWizard=false
-  
-    # =====================
-    # Plugins (PIN VERSION)
-    # =====================
-    installPlugins:
-      - kubernetes
-      - workflow-aggregator
-      - git
-      - amazon-ecr
-      - pipeline-model-definition
-      - docker-workflow
-      - configuration-as-code
-      - role-strategy
-      # blueocean KHÔNG khuyến khích cho prod lâu dài
-      # - blueocean:1.27.10
-  
-    # =====================
-    # Resources
-    # =====================
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "1Gi"
-      limits:
-        cpu: "1000m"
-        memory: "2Gi"
-  
-    # =====================
-    # Service
-    # =====================
-    serviceType: ClusterIP
-    servicePort: 8080
-  
-    # =====================
-    # Kubernetes Cloud (Agents)
-    # =====================
-    # Plugin kubernetes đã xử lý phần này
-    # Không cần enable riêng
-  
   agent:
     enabled: true
     image:
