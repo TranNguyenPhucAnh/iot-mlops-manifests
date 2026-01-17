@@ -96,7 +96,7 @@ jenkins:
     create: true
     clusterRead: true   # Cho Jenkins dùng kubectl / K8s plugin
   
-  # persistence:
-  #   enabled: true
-  #   storageClass: gp3
-  #   size: 8Gi
+  persistence:
+    enabled: true
+    storageClass: gp3
+    size: 8Gi
