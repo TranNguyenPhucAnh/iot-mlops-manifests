@@ -5,18 +5,94 @@ jenkins:
       - secretRef:
           name: jenkins-jcasc-secrets
         
-    containerEnv:
-      - name: CASC_JENKINS_CONFIG
-        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom-casc_configs"
-     
-    persistence:
-      volumes:
-        - name: jenkins-custom-casc-config
-          configMap:
-          name: jenkins-custom-casc-config
-      mounts:
-        - mountPath: /var/jenkins_home/custom-casc_configs
-          name: jenkins-custom-casc-config
+    JCasC:
+      defaultConfig: true  # ← Giữ default config
+      
+      # Thêm custom configs
+      configScripts:
+        credentials: |-
+          credentials:
+            system:
+              domainCredentials:
+                - credentials:
+                    - string:
+                        scope: GLOBAL
+                        id: github-token
+                        description: "GitHub Personal Access Token"
+                        secret: "${GITHUB_TOKEN}"
+                    - usernamePassword:
+                        scope: GLOBAL
+                        id: docker-registry
+                        description: "Docker registry credential"
+                        username: "${DOCKER_USERNAME}"
+                        password: "${DOCKER_PASSWORD}"
+        
+        kubernetes-cloud: |-
+          jenkins:
+            clouds:
+              - kubernetes:
+                  name: "kubernetes"
+                  serverUrl: "https://kubernetes.default.svc"
+                  namespace: "jenkins"
+                  credentialsId: ""
+                  skipTlsVerify: false
+                  containerCapStr: "10"
+                  maxRequestsPerHostStr: "32"
+                  jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080"
+                  jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000"
+                  podTemplates:
+                    - name: "mlops-agent"
+                      label: "mlops"
+                      serviceAccount: "jenkins-sa"
+                      idleMinutes: 5
+                      nodeUsageMode: NORMAL
+                      containers:
+                        - name: "jnlp"
+                          image: "your-docker-registry/jenkins-agent-mlops:latest"
+                          args: "^${computer.jnlpmac} ^${computer.name}"
+                          resourceRequestCpu: "500m"
+                          resourceRequestMemory: "1Gi"
+                          resourceLimitCpu: "2000m"
+                          resourceLimitMemory: "4Gi"
+                      volumes:
+                        - emptyDirVolume:
+                            mountPath: "/tmp"
+                      yamlMergeStrategy: "override"
+        
+        security: |-
+          jenkins:
+            securityRealm:
+              local:
+                allowsSignup: false
+                users:
+                  - id: "${JENKINS_ADMIN_USER}"
+                    password: "${JENKINS_ADMIN_PASSWORD}"
+            
+            authorizationStrategy:
+              roleBased:
+                roles:
+                  global:
+                    - name: admin
+                      description: "Jenkins administrators"
+                      permissions:
+                        - "Overall/Administer"
+                      assignments:
+                        - "${JENKINS_ADMIN_USER}"
+                    - name: developer
+                      description: "Developers"
+                      permissions:
+                        - "Overall/Read"
+                        - "Job/Read"
+                        - "Job/Build"
+                        - "Job/Workspace"
+                        - "View/Read"
+                      assignments: []
+            
+            crumbIssuer: "standard"
+          
+          unclassified:
+            location:
+              url: "https://jenkins.example.com"
 
     componentName: jenkins-controller
 
@@ -59,6 +135,7 @@ jenkins:
       - pipeline-model-definition
       - docker-workflow
       - configuration-as-code
+      - role-strategy
       # blueocean KHÔNG khuyến khích cho prod lâu dài
       # - blueocean:1.27.10
   
