@@ -22,7 +22,7 @@ jenkins:
 
     image:
       repository: jenkins/jenkins
-      tag: "latest"
+      tag: "lts"
   
     # =====================
     # ServiceAccount + IRSA
