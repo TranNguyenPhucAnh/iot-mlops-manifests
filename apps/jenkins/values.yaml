@@ -4,10 +4,19 @@ jenkins:
     envFrom: #load Kubernetes Secrets định nghĩa trong jenkins-secret.yaml
       - secretRef:
           name: jenkins-jcasc-secrets
+
+    envVars:
+      - name: CASC_JENKINS_CONFIG
+        value: "/var/jenkins_home/casc_configs/custom"
+      
+    sidecars:
+      configAutoReload:
+        enabled: true # Tự động reload khi ConfigMap thay đổi (rất hữu ích)
         
     JCasC:
       enabled: true
       defaultConfig: false
+      configScripts: {}   # Tắt inline config
       
     # =======================
     # VOLUMES - CHART NATIVE
