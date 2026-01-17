@@ -24,7 +24,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # ✅ Fix: snake_case thay vì camelCase
+      - CreateNamespace=false  # ✅ Fix: snake_case thay vì camelCase
       - PrunePropagationPolicy=foreground # Safe delete
       - Prune=true
       - Replace=true # Force replace conflicting resources
