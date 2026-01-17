@@ -1,7 +1,7 @@
 jenkins:
   controller:
   
-    envFrom: #load Kubernetes Secrets định nghĩa trong jenkins-secret.yaml
+    envFrom:
       - secretRef:
           name: jenkins-jcasc-secrets
 
@@ -11,33 +11,27 @@ jenkins:
       repository: jenkins/jenkins
       tag: "lts"
   
-    # =====================
-    # ServiceAccount + IRSA
-    # =====================
     serviceAccount:
-      create: false               # Terraform quản lý SA
+      create: false
       name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
   
     # =====================
-    # Security bootstrap
+    # Admin config - QUAN TRỌNG
     # =====================
     admin:
-      username: admin
+      # Không dùng username hardcode, để JCasC handle
       existingSecret: jenkins-jcasc-secrets
       userKey: JENKINS_ADMIN_USER
       passwordKey: JENKINS_ADMIN_PASSWORD
   
-    # Tắt setup wizard (BẮT BUỘC dùng JCasC sau này)
+    # Tắt setup wizard
     javaOpts: >
       -Xms512m
       -Xmx1024m
       -Djenkins.install.runSetupWizard=false
   
-    # =====================
-    # Plugins (PIN VERSION)
-    # =====================
     installPlugins:
       - kubernetes
       - workflow-aggregator
@@ -47,12 +41,7 @@ jenkins:
       - docker-workflow
       - configuration-as-code
       - role-strategy
-      # blueocean KHÔNG khuyến khích cho prod lâu dài
-      # - blueocean:1.27.10
   
-    # =====================
-    # Resources
-    # =====================
     resources:
       requests:
         cpu: "500m"
@@ -61,66 +50,16 @@ jenkins:
         cpu: "1000m"
         memory: "2Gi"
   
-    # =====================
-    # Service
-    # =====================
     serviceType: ClusterIP
     servicePort: 8080
   
     JCasC:
-      defaultConfig: true  # ← Giữ default config
+      defaultConfig: true
       
-      # Thêm custom configs
       configScripts:
-        credentials: |-
-          credentials:
-            system:
-              domainCredentials:
-                - credentials:
-                    - string:
-                        scope: GLOBAL
-                        id: github-token
-                        description: "GitHub Personal Access Token"
-                        secret: "${GITHUB_TOKEN}"
-                    - usernamePassword:
-                        scope: GLOBAL
-                        id: docker-registry
-                        description: "Docker registry credential"
-                        username: "${DOCKER_USERNAME}"
-                        password: "${DOCKER_PASSWORD}"
-        
-        kubernetes-cloud: |-
-          jenkins:
-            clouds:
-              - kubernetes:
-                  name: "kubernetes"
-                  serverUrl: "https://kubernetes.default.svc"
-                  namespace: "jenkins"
-                  credentialsId: ""
-                  skipTlsVerify: false
-                  containerCapStr: "10"
-                  maxRequestsPerHostStr: "32"
-                  jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080"
-                  jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000"
-                  templates:
-                    - name: "mlops-agent"
-                      label: "mlops"
-                      serviceAccount: "jenkins-sa"
-                      idleMinutes: 5
-                      nodeUsageMode: NORMAL
-                      containers:
-                        - name: "jnlp"
-                          image: "your-docker-registry/jenkins-agent-mlops:latest"
-                          args: "^${computer.jnlpmac} ^${computer.name}"
-                          resourceRequestCpu: "500m"
-                          resourceRequestMemory: "1Gi"
-                          resourceLimitCpu: "2000m"
-                          resourceLimitMemory: "4Gi"
-                      volumes:
-                        - emptyDirVolume:
-                            mountPath: "/tmp"
-                      yamlMergeStrategy: "override"
-        
+        # =====================
+        # 1. SECURITY - Tạo user trước tiên
+        # =====================
         security: |-
           jenkins:
             securityRealm:
@@ -137,19 +76,10 @@ jenkins:
                     - name: "admin"
                       description: "Jenkins administrators"
                       permissions:
-                        - "Overall/Read"
                         - "Overall/Administer"
-                        - "Job/Read"
-                        - "Job/Build"
-                        - "Job/Create"
-                        - "Job/Configure"
-                        - "Job/Delete"
-                        - "Job/Cancel"
-                        - "Job/Move"
-                        - "SCM/Tag"
-                        - "SCM/Admin"
                       entries:
-                        - user: "${JENKINS_ADMIN_USER}"
+                        - user: "${JENKINS_ADMIN_USER}"  # ← Format đúng
+                    
                     - name: "developer"
                       description: "Developers"
                       permissions:
@@ -160,16 +90,83 @@ jenkins:
                         - "View/Read"
                       entries:
                         - user: "authenticated"
+        
+        # =====================
+        # 2. CREDENTIALS
+        # =====================
+        credentials: |-
+          credentials:
+            system:
+              domainCredentials:
+                - credentials:
+                    - string:
+                        scope: GLOBAL
+                        id: github-token
+                        description: "GitHub Personal Access Token"
+                        secret: "${GITHUB_TOKEN}"
+                    
+                    - usernamePassword:
+                        scope: GLOBAL
+                        id: docker-registry
+                        description: "Docker registry credential"
+                        username: "${DOCKER_USERNAME}"
+                        password: "${DOCKER_PASSWORD}"
+        
+        # =====================
+        # 3. KUBERNETES CLOUD
+        # =====================
+        kubernetes-cloud: |-
+          jenkins:
+            clouds:
+              - kubernetes:
+                  name: "kubernetes"
+                  serverUrl: "https://kubernetes.default.svc"
+                  namespace: "jenkins"
+                  jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080"
+                  jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000"
+                  containerCapStr: "10"
+                  maxRequestsPerHostStr: "32"
+                  
+                  templates:
+                    - name: "default-agent"
+                      label: "jenkins-agent"
+                      serviceAccount: "jenkins-sa"
+                      idleMinutes: 5
+                      containers:
+                        - name: "jnlp"
+                          image: "jenkins/inbound-agent:latest"
+                          args: "^${computer.jnlpmac} ^${computer.name}"
+                          resourceRequestCpu: "500m"
+                          resourceRequestMemory: "512Mi"
+                          resourceLimitCpu: "1000m"
+                          resourceLimitMemory: "1Gi"
+                    
+                    - name: "mlops-agent"
+                      label: "mlops"
+                      serviceAccount: "jenkins-sa"
+                      idleMinutes: 5
+                      containers:
+                        - name: "jnlp"
+                          image: "your-docker-registry/jenkins-agent-mlops:latest"
+                          args: "^${computer.jnlpmac} ^${computer.name}"
+                          resourceRequestCpu: "500m"
+                          resourceRequestMemory: "1Gi"
+                          resourceLimitCpu: "2000m"
+                          resourceLimitMemory: "4Gi"
+                      volumes:
+                        - emptyDirVolume:
+                            mountPath: "/tmp"
+                            memory: false
+
   agent:
     enabled: true
     image:
       repository: jenkins/inbound-agent
       tag: "latest"
-    namespace: jenkins
   
   rbac:
     create: true
-    clusterRead: true   # Cho Jenkins dùng kubectl / K8s plugin
+    readSecrets: true
   
   persistence:
     enabled: true
