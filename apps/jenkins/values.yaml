@@ -90,7 +90,7 @@ jenkins:
     volumes:
       - name: jenkins-custom-casc-config
         configMap:
-        name: jenkins-custom-casc-config
+          name: jenkins-custom-casc-config
     mounts:
       - mountPath: /var/jenkins_home/custom_casc_configs
         name: jenkins-custom-casc-config
