@@ -16,12 +16,7 @@ jenkins:
     # ConfigMap JCasC (Terraform tạo)
       - type: ConfigMap
         configMapName: jenkins-custom-casc-config # Terraform resource
-        mountPath: /var/jenkins_home/casc_configs
-
-    volumeMounts:
-      - mountPath: /var/jenkins_home/casc_configs
-        name: casc-configs      # ← Mount ConfigMap Terraform
-        readOnly: true
+        mountPath: /var/jenkins_home/casc_configs/custom
 
     componentName: jenkins-controller
 
