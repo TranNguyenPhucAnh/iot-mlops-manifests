@@ -46,28 +46,29 @@ jenkins:
     servicePort: 8080
 
     JCasC:
-      defaultConfig: true
+      defaultConfig: false  # Tắt default để tránh conflict
       configScripts:
         credentials: |
           jenkins:
             credentials:
               system:
                 domainCredentials:
+                  - domain:
+                      name: "global"
+                      description: "Global credentials"
                     credentials:
-          
                       - string:
                           scope: GLOBAL
                           id: github-token
                           description: "GitHub Personal Access Token"
                           secret: "${GITHUB_TOKEN}"
-            
                       - usernamePassword:
                           scope: GLOBAL
                           id: docker-registry
                           description: "Docker registry credential"
                           username: "${DOCKER_USERNAME}"
                           password: "${DOCKER_PASSWORD}"
-                  
+    
         security: |
           jenkins:
             securityRealm:
@@ -76,7 +77,7 @@ jenkins:
                 users:
                   - id: "${JENKINS_ADMIN_USER}"
                     password: "${JENKINS_ADMIN_PASSWORD}"
-          
+      
             authorizationStrategy:
               roleBased:
                 roles:
@@ -86,8 +87,8 @@ jenkins:
                       permissions:
                         - "Overall/Administer"
                       entries:
-                        - "${JENKINS_ADMIN_USER}"
-          
+                        - user: "${JENKINS_ADMIN_USER}"
+                  
                     - name: developer
                       description: "Developers"
                       permissions:
@@ -97,7 +98,7 @@ jenkins:
                         - "Job/Workspace"
                         - "View/Read"
                       entries: []
-
+    
         kubernetes-cloud: |
           jenkins:
             clouds:
@@ -122,7 +123,7 @@ jenkins:
                       containers:
                         - name: "jnlp"
                           image: "bourgeoisie/jenkins-agent-mlops:latest"
-                          args: "^${computer.jnlpmac} ^${computer.name}"
+                          args: ["^${computer.jnlpmac}", "^${computer.name}"]  # Fix args [] [web:46]
                           resourceRequestCpu: "500m"
                           resourceRequestMemory: "1Gi"
                           resourceLimitCpu: "2000m"
