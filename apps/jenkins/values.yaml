@@ -1,30 +1,32 @@
 jenkins:
   controller:
   
-    containerEnv:
-      - name: CASC_JENKINS_CONFIG
-        value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom_casc_configs"
+    # containerEnv:
+    #   - name: CASC_JENKINS_CONFIG
+    #     value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom_casc_configs"
         
-      - name: GITHUB_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: jenkins-jcasc-secrets
-            key: GITHUB_TOKEN
+    #   - name: GITHUB_TOKEN
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: jenkins-jcasc-secrets
+    #         key: GITHUB_TOKEN
             
-      - name: DOCKER_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: jenkins-jcasc-secrets
-            key: DOCKER_USERNAME
+    #   - name: DOCKER_USERNAME
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: jenkins-jcasc-secrets
+    #         key: DOCKER_USERNAME
             
-      - name: DOCKER_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: jenkins-jcasc-secrets
-            key: DOCKER_PASSWORD
-            
+    #   - name: DOCKER_PASSWORD
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: jenkins-jcasc-secrets
+    #         key: DOCKER_PASSWORD
+    
     componentName: jenkins-controller
-
+    
+    initConfigMap: jenkins-custom-casc-config
+    
     image:
       repository: jenkins/jenkins
       tag: "lts"
@@ -37,13 +39,13 @@ jenkins:
         
     existingSecret: jenkins-jcasc-secrets
     
-    additionalExistingSecrets:
-      - name: jenkins-jcasc-secrets
-        keyName: GITHUB_TOKEN
-      - name: jenkins-jcasc-secrets
-        keyName: DOCKER_USERNAME
-      - name: jenkins-jcasc-secrets
-        keyName: DOCKER_PASSWORD
+    # additionalExistingSecrets:
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: GITHUB_TOKEN
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: DOCKER_USERNAME
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: DOCKER_PASSWORD
 
     admin:
       existingSecret: jenkins-jcasc-secrets
@@ -85,12 +87,17 @@ jenkins:
   rbac:
     create: true
     readSecrets: true
-  
+
   persistence:
-    volumes:
-      - name: jenkins-custom-casc-config
-        configMap:
-          name: jenkins-custom-casc-config
-    mounts:
-      - mountPath: /var/jenkins_home/custom_casc_configs
-        name: jenkins-custom-casc-config
+    enabled: true
+    storageClass: gp3
+    size: 8Gi
+    
+  # persistence:
+  #   volumes:
+  #     - name: jenkins-custom-casc-config
+  #       configMap:
+  #         name: jenkins-custom-casc-config
+  #   mounts:
+  #     - mountPath: /var/jenkins_home/custom_casc_configs
+  #       name: jenkins-custom-casc-config
