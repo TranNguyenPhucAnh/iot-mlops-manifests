@@ -12,7 +12,7 @@ jenkins:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
-    existingSecret: jenkins-jcasc-secrets
+    existingSecret: jenkins-jcasc-secrets # load secrets
 
     admin:
       existingSecret: jenkins-jcasc-secrets
@@ -52,21 +52,18 @@ jenkins:
           credentials:
             system:
               domainCredentials:
-                - domain:
-                    name: "global"
-                    description: "Global credentials"
-                  credentials:
-                    - string:
-                        scope: GLOBAL
-                        id: github-token
-                        description: "GitHub Personal Access Token"
-                        secret: "${GITHUB_TOKEN}"
-                    - usernamePassword:
-                        scope: GLOBAL
-                        id: docker-registry
-                        description: "Docker registry credential"
-                        username: "${DOCKER_USERNAME}"
-                        password: "${DOCKER_PASSWORD}"
+                credentials:
+                  - string:
+                      scope: GLOBAL
+                      id: github-token
+                      description: "GitHub Personal Access Token"
+                      secret: "${GITHUB_TOKEN}"
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: docker-registry
+                      description: "Docker registry credential"
+                      username: "${DOCKER_USERNAME}"
+                      password: "${DOCKER_PASSWORD}"
     
         security: |
           jenkins:
@@ -148,6 +145,3 @@ jenkins:
     enabled: true
     storageClass: gp3
     size: 8Gi
-  #   mounts:
-  #     - mountPath: /var/jenkins_home/custom_casc_configs
-  #       name: jenkins-custom-casc-config
