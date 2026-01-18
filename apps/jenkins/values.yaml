@@ -24,9 +24,7 @@ jenkins:
     #         key: DOCKER_PASSWORD
     
     componentName: jenkins-controller
-    
-    initConfigMap: jenkins-custom-casc-config
-    
+        
     image:
       repository: jenkins/jenkins
       tag: "lts"
@@ -37,23 +35,21 @@ jenkins:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
-    existingSecret: jenkins-jcasc-secrets
+    #existingSecret: jenkins-jcasc-secrets
     
-    # additionalExistingSecrets:
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: GITHUB_TOKEN
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: DOCKER_USERNAME
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: DOCKER_PASSWORD
+    additionalExistingSecrets:
+      - name: jenkins-jcasc-secrets
+        keyName: GITHUB_TOKEN
+      - name: jenkins-jcasc-secrets
+        keyName: DOCKER_USERNAME
+      - name: jenkins-jcasc-secrets
+        keyName: DOCKER_PASSWORD
 
     admin:
-      #existingSecret: jenkins-jcasc-secrets
-      #userKey: admin
-      #passwordKey: admin
-      username: "admin"
-      password: "admin"
-  
+      existingSecret: jenkins-jcasc-secrets
+      userKey: JENKINS_ADMIN_USER
+      passwordKey: JENKINS_ADMIN_PASSWORD
+      
     javaOpts: >
       -Xms512m
       -Xmx1024m
@@ -79,7 +75,97 @@ jenkins:
   
     serviceType: ClusterIP
     servicePort: 8080
-  
+
+    JCasC:
+      defaultConfig: true
+      configScripts:
+        credentials: |
+          jenkins:
+            credentials:
+              system:
+                domainCredentials:
+                  - domain: null
+                    credentials:
+          
+                      - string:
+                          scope: GLOBAL
+                          id: github-token
+                          description: "GitHub Personal Access Token"
+                          secret: "${GITHUB_TOKEN}"
+            
+                      - usernamePassword:
+                          scope: GLOBAL
+                          id: docker-registry
+                          description: "Docker registry credential"
+                          username: "${DOCKER_USERNAME}"
+                          password: "${DOCKER_PASSWORD}"
+                  
+        security: |
+          jenkins:
+            securityRealm:
+              local:
+                allowsSignup: false
+                users:
+                  - id: "${JENKINS_ADMIN_USER}"
+                    password: "${JENKINS_ADMIN_PASSWORD}"
+          
+            authorizationStrategy:
+              roleBased:
+                roles:
+                  global:
+                    - name: admin
+                      description: "Jenkins admin"
+                      permissions:
+                        - "Overall/Administer"
+                      assignments:
+                        - "${JENKINS_ADMIN_USER}"
+          
+                    - name: developer
+                      description: "Developers"
+                      permissions:
+                        - "Overall/Read"
+                        - "Job/Read"
+                        - "Job/Build"
+                        - "Job/Workspace"
+                        - "View/Read"
+                      assignments: []
+
+        kubernetes-cloud: |
+          jenkins:
+            clouds:
+              - kubernetes:
+                  name: "kubernetes"
+                  serverUrl: "https://kubernetes.default.svc"
+                  namespace: "jenkins"
+                  credentialsId: ""
+                  skipTlsVerify: false
+                  containerCapStr: "10"
+                  maxRequestsPerHostStr: "32"
+                  jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080"
+                  jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
+          
+                  podTemplates:
+                    - name: "mlops-agent"
+                      label: "mlops"
+                      serviceAccount: "jenkins-sa"
+                      idleMinutes: 5
+                      nodeUsageMode: NORMAL
+          
+                      containers:
+                        - name: "jnlp"
+                          image: "bourgeoisie/jenkins-agent-mlops:latest"
+                          args: "^${computer.jnlpmac} ^${computer.name}"
+                          resourceRequestCpu: "500m"
+                          resourceRequestMemory: "1Gi"
+                          resourceLimitCpu: "2000m"
+                          resourceLimitMemory: "4Gi"
+          
+                      volumes:
+                        - emptyDirVolume:
+                            mountPath: "/tmp"
+          
+                      yamlMergeStrategy: "override"
+                    
   agent:
     enabled: true
     image:
