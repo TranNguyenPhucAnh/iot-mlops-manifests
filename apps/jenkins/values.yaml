@@ -85,7 +85,7 @@ jenkins:
                       description: "Jenkins admin"
                       permissions:
                         - "Overall/Administer"
-                      assignments:
+                      entries:
                         - "${JENKINS_ADMIN_USER}"
           
                     - name: developer
@@ -96,7 +96,7 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
-                      assignments: []                 
+                      entries: []
 
         kubernetes-cloud: |
           jenkins:
