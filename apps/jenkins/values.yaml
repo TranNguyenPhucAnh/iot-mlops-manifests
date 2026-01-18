@@ -52,22 +52,19 @@ jenkins:
           credentials:
             system:
               domainCredentials:
-                - domain:
-                    name: "global"
-                    description: "global credentials"
-                  credentials:
-                    - usernamePassword:
-                        scope: GLOBAL
-                        id: github-token
-                        description: "GitHub Personal Access Token"
-                        username: "${GITHUB_USERNAME}"
-                        password: "${GITHUB_TOKEN}"
-                    - usernamePassword:
-                        scope: GLOBAL
-                        id: docker-registry
-                        description: "Docker registry credential"
-                        username: "${DOCKER_USERNAME}"
-                        password: "${DOCKER_PASSWORD}"
+                - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: github-token
+                      description: "GitHub Personal Access Token"
+                      username: "${GITHUB_USERNAME}"
+                      password: "${GITHUB_TOKEN}"
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: docker-registry
+                      description: "Docker registry credential"
+                      username: "${DOCKER_USERNAME}"
+                      password: "${DOCKER_PASSWORD}"
     
         security: |
           jenkins:
