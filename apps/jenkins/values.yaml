@@ -52,7 +52,7 @@ jenkins:
           credentials:
             system:
               domainCredentials:
-                - credentials:
+                - credentials: # Global unrestricted domain
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
