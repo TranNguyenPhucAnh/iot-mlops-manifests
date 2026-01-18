@@ -48,8 +48,8 @@ jenkins:
     JCasC:
       defaultConfig: false  # Tắt default để tránh conflict
       configScripts:
-        credentials: |
-          jenkins:
+        credentials-global: |
+          unclassified:
             credentials:
               system:
                 domainCredentials:
