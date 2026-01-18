@@ -49,8 +49,10 @@ jenkins:
 
     admin:
       #existingSecret: jenkins-jcasc-secrets
-      userKey: admin
-      passwordKey: admin
+      #userKey: admin
+      #passwordKey: admin
+      username: "admin"
+      password: "admin"
   
     javaOpts: >
       -Xms512m
