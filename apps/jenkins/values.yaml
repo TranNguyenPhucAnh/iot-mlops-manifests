@@ -12,7 +12,7 @@ jenkins:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
-    #existingSecret: jenkins-jcasc-secrets
+    existingSecret: jenkins-jcasc-secrets
 
     admin:
       existingSecret: jenkins-jcasc-secrets
