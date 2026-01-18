@@ -37,13 +37,13 @@ jenkins:
         
     #existingSecret: jenkins-jcasc-secrets
     
-    additionalExistingSecrets:
-      - name: jenkins-jcasc-secrets
-        keyName: GITHUB_TOKEN
-      - name: jenkins-jcasc-secrets
-        keyName: DOCKER_USERNAME
-      - name: jenkins-jcasc-secrets
-        keyName: DOCKER_PASSWORD
+    # additionalExistingSecrets:
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: GITHUB_TOKEN
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: DOCKER_USERNAME
+    #   - name: jenkins-jcasc-secrets
+    #     keyName: DOCKER_PASSWORD
 
     admin:
       existingSecret: jenkins-jcasc-secrets
