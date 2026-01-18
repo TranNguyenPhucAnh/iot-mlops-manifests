@@ -48,9 +48,9 @@ jenkins:
     #     keyName: DOCKER_PASSWORD
 
     admin:
-      existingSecret: jenkins-jcasc-secrets
-      userKey: JENKINS_ADMIN_USER
-      passwordKey: JENKINS_ADMIN_PASSWORD
+      #existingSecret: jenkins-jcasc-secrets
+      userKey: admin
+      passwordKey: admin
   
     javaOpts: >
       -Xms512m
