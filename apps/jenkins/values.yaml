@@ -1,28 +1,5 @@
 jenkins:
   controller:
-  
-    # containerEnv:
-    #   - name: CASC_JENKINS_CONFIG
-    #     value: "/var/jenkins_home/casc_configs,/var/jenkins_home/custom_casc_configs"
-        
-    #   - name: GITHUB_TOKEN
-    #     valueFrom:
-    #       secretKeyRef:
-    #         name: jenkins-jcasc-secrets
-    #         key: GITHUB_TOKEN
-            
-    #   - name: DOCKER_USERNAME
-    #     valueFrom:
-    #       secretKeyRef:
-    #         name: jenkins-jcasc-secrets
-    #         key: DOCKER_USERNAME
-            
-    #   - name: DOCKER_PASSWORD
-    #     valueFrom:
-    #       secretKeyRef:
-    #         name: jenkins-jcasc-secrets
-    #         key: DOCKER_PASSWORD
-    
     componentName: jenkins-controller
         
     image:
@@ -35,15 +12,7 @@ jenkins:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
-    #existingSecret: jenkins-jcasc-secrets
-    
-    # additionalExistingSecrets:
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: GITHUB_TOKEN
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: DOCKER_USERNAME
-    #   - name: jenkins-jcasc-secrets
-    #     keyName: DOCKER_PASSWORD
+    existingSecret: jenkins-jcasc-secrets
 
     admin:
       existingSecret: jenkins-jcasc-secrets
@@ -84,7 +53,6 @@ jenkins:
             credentials:
               system:
                 domainCredentials:
-                  - domain: null
                     credentials:
           
                       - string:
@@ -128,7 +96,7 @@ jenkins:
                         - "Job/Build"
                         - "Job/Workspace"
                         - "View/Read"
-                      assignments: []
+                      assignments: []                 
 
         kubernetes-cloud: |
           jenkins:
@@ -144,7 +112,7 @@ jenkins:
                   jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080"
                   jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
           
-                  podTemplates:
+                  templates:
                     - name: "mlops-agent"
                       label: "mlops"
                       serviceAccount: "jenkins-sa"
