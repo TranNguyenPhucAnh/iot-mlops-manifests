@@ -148,12 +148,6 @@ jenkins:
     enabled: true
     storageClass: gp3
     size: 8Gi
-    
-  # persistence:
-  #   volumes:
-  #     - name: jenkins-custom-casc-config
-  #       configMap:
-  #         name: jenkins-custom-casc-config
   #   mounts:
   #     - mountPath: /var/jenkins_home/custom_casc_configs
   #       name: jenkins-custom-casc-config
