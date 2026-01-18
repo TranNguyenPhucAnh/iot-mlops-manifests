@@ -53,8 +53,8 @@ jenkins:
             system:
               domainCredentials:
                 - domain:
-                    name: "global"
-                    description: "Global credentials"
+                    name: "*"
+                    description: "Global credentials (unrestricted)"
                   credentials:
                     - string:
                         scope: GLOBAL
