@@ -53,14 +53,15 @@ jenkins:
             system:
               domainCredentials:
                 - domain:
-                    name: "*"
-                    description: "Global credentials (unrestricted)"
+                    name: "global"
+                    description: "global credentials"
                   credentials:
-                    - string:
+                    - usernamePassword:
                         scope: GLOBAL
                         id: github-token
                         description: "GitHub Personal Access Token"
-                        secret: "${GITHUB_TOKEN}"
+                        username: "${GITHUB_USERNAME}"
+                        password: "${GITHUB_TOKEN}"
                     - usernamePassword:
                         scope: GLOBAL
                         id: docker-registry
