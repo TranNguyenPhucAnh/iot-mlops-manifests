@@ -70,34 +70,33 @@ jenkins:
                           password: "${DOCKER_PASSWORD}"
     
         security: |
-          jenkins:
-            securityRealm:
-              local:
-                allowsSignup: false
-                users:
-                  - id: "${JENKINS_ADMIN_USER}"
-                    password: "${JENKINS_ADMIN_PASSWORD}"
-      
-            authorizationStrategy:
-              roleBased:
-                roles:
-                  global:
-                    - name: admin
-                      description: "Jenkins admin"
-                      permissions:
-                        - "Overall/Administer"
-                      entries:
-                        - user: "${JENKINS_ADMIN_USER}"
-                  
-                    - name: developer
-                      description: "Developers"
-                      permissions:
-                        - "Overall/Read"
-                        - "Job/Read"
-                        - "Job/Build"
-                        - "Job/Workspace"
-                        - "View/Read"
-                      entries: []
+          securityRealm:
+            local:
+              allowsSignup: false
+              users:
+                - id: "${JENKINS_ADMIN_USER}"
+                  password: "${JENKINS_ADMIN_PASSWORD}"
+    
+          authorizationStrategy:
+            roleBased:
+              roles:
+                global:
+                  - name: admin
+                    description: "Jenkins admin"
+                    permissions:
+                      - "Overall/Administer"
+                    entries:
+                      - user: "${JENKINS_ADMIN_USER}"
+                
+                  - name: developer
+                    description: "Developers"
+                    permissions:
+                      - "Overall/Read"
+                      - "Job/Read"
+                      - "Job/Build"
+                      - "Job/Workspace"
+                      - "View/Read"
+                    entries: []
     
         kubernetes-cloud: |
           jenkins:
