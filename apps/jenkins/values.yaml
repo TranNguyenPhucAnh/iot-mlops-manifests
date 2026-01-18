@@ -25,7 +25,7 @@ jenkins:
     
     componentName: jenkins-controller
     
-    #initConfigMap: jenkins-custom-casc-config
+    initConfigMap: jenkins-custom-casc-config
     
     image:
       repository: jenkins/jenkins
