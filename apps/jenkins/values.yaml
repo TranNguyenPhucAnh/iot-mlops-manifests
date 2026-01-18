@@ -49,25 +49,24 @@ jenkins:
       defaultConfig: false  # Tắt default để tránh conflict
       configScripts:
         credentials-global: |
-          unclassified:
-            credentials:
-              system:
-                domainCredentials:
-                  - domain:
-                      name: "global"
-                      description: "Global credentials"
-                    credentials:
-                      - string:
-                          scope: GLOBAL
-                          id: github-token
-                          description: "GitHub Personal Access Token"
-                          secret: "${GITHUB_TOKEN}"
-                      - usernamePassword:
-                          scope: GLOBAL
-                          id: docker-registry
-                          description: "Docker registry credential"
-                          username: "${DOCKER_USERNAME}"
-                          password: "${DOCKER_PASSWORD}"
+          credentials:
+            system:
+              domainCredentials:
+                - domain:
+                    name: "global"
+                    description: "Global credentials"
+                  credentials:
+                    - string:
+                        scope: GLOBAL
+                        id: github-token
+                        description: "GitHub Personal Access Token"
+                        secret: "${GITHUB_TOKEN}"
+                    - usernamePassword:
+                        scope: GLOBAL
+                        id: docker-registry
+                        description: "Docker registry credential"
+                        username: "${DOCKER_USERNAME}"
+                        password: "${DOCKER_PASSWORD}"
     
         security: |
           jenkins:
