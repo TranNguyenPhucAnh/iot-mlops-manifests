@@ -106,14 +106,14 @@ airflow:
       # Tăng timeout cho DAG processing
       dag_file_processor_timeout: 300
       dagbag_import_timeout: 300
-      
-  extraEnv: |-
-    - name: AIRFLOW__CORE__FERNET_KEY
-      valueFrom:
-        secretKeyRef:
-          name: airflow-fernet-key
-          key: fernet-key
-          
+
+  connections:
+    - id: aws_default
+      type: aws
+      description: AWS default connection
+      extra: |-
+        { "region_name":"ap-southeast-1" }
+   
   # Scheduler
   scheduler:
     serviceAccount:
@@ -123,10 +123,10 @@ airflow:
     resources:
       requests:
         memory: "1Gi"
-        cpu: "1Gi"
+        cpu: "2Gi"
       limits:
         memory: "2Gi"
-        cpu: "2Gi"
+        cpu: "4Gi"
 
   # Worker (Celery)
   workers:
