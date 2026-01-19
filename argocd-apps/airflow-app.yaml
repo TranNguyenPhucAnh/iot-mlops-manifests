@@ -5,7 +5,7 @@ metadata:
   name: airflow
   namespace: argocd
     finalizers:
-    - resources-finalizer.argocd.argoproj.io  # Prevent delete issues
+      - resources-finalizer.argocd.argoproj.io  # Prevent delete issues
 spec:
   project: default
   source:
