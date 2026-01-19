@@ -113,7 +113,8 @@ airflow:
       description: AWS default connection
       extra: |-
         { "region_name":"ap-southeast-1" }
-   
+        
+   #t3.medium (2 vCPU/4Gi RAM) không đủ allocatable resources sau trừ system daemonsets (kube-proxy, etc. ~0.5-1 vCPU/1Gi), chỉ còn ~1.5 vCPU/3Gi; requests scheduler 2Gi CPU + 1Gi RAM vượt quá
   # Scheduler
   scheduler:
     serviceAccount:
@@ -122,11 +123,11 @@ airflow:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
+        cpu: "500m"
         memory: "1Gi"
-        cpu: "2Gi"
       limits:
+        cpu: "1000m"
         memory: "2Gi"
-        cpu: "4Gi"
 
   # Worker (Celery)
   workers:
@@ -137,11 +138,11 @@ airflow:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
         cpu: "1000m"
         memory: "2Gi"
-      limits:
-        cpu: "2000m"
-        memory: "4Gi"
     persistence:
       enabled: false
       
@@ -153,11 +154,11 @@ airflow:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
-        cpu: "1000m"
-        memory: "2Gi"
+        cpu: "250m"
+        memory: "512Mi"
       limits:
-        cpu: "2000m"
-        memory: "4Gi"
+        cpu: "500m"
+        memory: "1Gi"
 
   # Tắt Triggerer (không dùng)
   triggerer:
