@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: airflow
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io  # Prevent delete issues
 spec:
   project: default
   source:
@@ -24,14 +22,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true  # ✅ Fix: snake_case thay vì camelCase
-      - PrunePropagationPolicy=foreground # Safe delete
-      - Prune=true
-      - Replace=true # Force replace conflicting resources
-      - ServerSideApply=true    # ✅ Handle existing resources
-      - ApplyOutOfSyncOnly=true # ✅ Chỉ sync diff
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
