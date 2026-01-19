@@ -106,7 +106,14 @@ airflow:
       # Tăng timeout cho DAG processing
       dag_file_processor_timeout: 300
       dagbag_import_timeout: 300
-          
+
+  connections:
+    - id: aws_default
+      type: aws
+      description: AWS default connection
+      extra: |-
+        { "region_name":"ap-southeast-1" }
+   
   # Scheduler
   scheduler:
     serviceAccount:
