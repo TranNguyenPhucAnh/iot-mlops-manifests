@@ -107,12 +107,12 @@ airflow:
       dag_file_processor_timeout: 300
       dagbag_import_timeout: 300
       
-  # extraEnv: |-
-  #   - name: AIRFLOW__CORE__FERNET_KEY
-  #     valueFrom:
-  #       secretKeyRef:
-  #         name: airflow-fernet-key
-  #         key: fernet-key
+  extraEnv: |-
+    - name: AIRFLOW__CORE__FERNET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: airflow-fernet-key
+          key: fernet-key
           
   # Scheduler
   scheduler:
