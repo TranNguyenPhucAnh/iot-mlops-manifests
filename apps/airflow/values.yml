@@ -5,15 +5,15 @@ airflow:
   
   # Celery configuration
   celery:
-    worker_concurrency: 16
-    worker_autoscale: '16,8'
-    worker_prefetch_multiplier: 1
-    worker_max_tasks_per_child: 200
+    worker_concurrency: 8 # Fixed slots
+    worker_autoscale: '8,4' # max=8, min=4 ← SỬA!
+    worker_prefetch_multiplier: 1 # Giữ
+    worker_max_tasks_per_child: 100 # Giảm restart thường xuyên
     visibility_timeout: 21600  # 6 hours
     task_track_started: 'True'
     task_time_limit: 7200  # 2 hours
     task_soft_time_limit: 3600  # 1 hour
-    pool: prefork
+    pool: prefork 
   
   # Celery broker transport options
   celery_broker_transport_options:
@@ -100,12 +100,13 @@ airflow:
       dags_are_paused_at_creation: 'true'
       load_examples: 'false'
       executor: CeleryExecutor
-      parallelism: 32
-      dag_concurrency: 16
-      max_active_runs_per_dag: 16
+      parallelism: 16
+      dag_concurrency: 8
+      max_active_runs_per_dag: 4
       # Tăng timeout cho DAG processing
       dag_file_processor_timeout: 300
       dagbag_import_timeout: 300
+      task_acks_late: 'True'   # Ack after complete
 
   connections:
     - id: aws_default
