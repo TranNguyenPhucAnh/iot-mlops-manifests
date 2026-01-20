@@ -136,7 +136,7 @@ airflow:
       create: true  # ← Để chart tự tạo
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
-     resources:
+    resources:
       requests:
         cpu: "500m"
         memory: "1Gi"
