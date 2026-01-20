@@ -139,11 +139,11 @@ airflow:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
       requests:
-        cpu: "500m"
-        memory: "1Gi"
-      limits:
         cpu: "1Gi"
         memory: "2Gi"
+      limits:
+        cpu: "2Gi"
+        memory: "3Gi"
     persistence:
       enabled: false
       
