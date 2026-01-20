@@ -138,12 +138,12 @@ airflow:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/AirflowAccessRole"
     resources:
-      requests:
-        cpu: "1000m"
-        memory: "3Gi"     # Tăng từ 1-2Gi
+       requests:
+        cpu: "500m"      # Giảm mạnh CPU Request để nhường chỗ cho Jenkins
+        memory: "3Gi"    # GIỮ NGUYÊN mức RAM bạn đã test ổn định
       limits:
-        cpu: "2000m"
-        memory: "6Gi"     # ← CRITICAL, từ 4Gi → 6Gi
+        cpu: "1000m"     # Cho phép nó "bung" lên khi cần
+        memory: "6Gi"
     persistence:
       enabled: false
       
