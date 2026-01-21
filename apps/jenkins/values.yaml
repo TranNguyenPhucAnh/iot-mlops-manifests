@@ -8,7 +8,7 @@ jenkins:
   
     serviceAccount:
       create: true
-      name: jenkins
+      name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
@@ -113,7 +113,7 @@ jenkins:
                   templates:
                     - name: "mlops-agent"
                       label: "mlops"
-                      serviceAccount: "jenkins"
+                      serviceAccount: "jenkins-sa"
                       idleMinutes: 5
                       nodeUsageMode: NORMAL
           
