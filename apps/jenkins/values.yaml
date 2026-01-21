@@ -8,7 +8,6 @@ jenkins:
   
     serviceAccount:
       create: true
-      name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
         
@@ -107,8 +106,8 @@ jenkins:
                   skipTlsVerify: false
                   containerCapStr: "10"
                   maxRequestsPerHostStr: "32"
-                  jenkinsUrl: "http://jenkins-cd.jenkins.svc.cluster.local:8080" # Controller service (8080)
-                  jenkinsTunnel: "jenkins-cd-agent.jenkins.svc.cluster.local:50000" # JNLP service (50000)
+                  jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080" # Controller service (8080)
+                  jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000" # JNLP service (50000)
           
                   templates:
                     - name: "mlops-agent"
