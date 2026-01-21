@@ -15,7 +15,7 @@ spec:
     targetRevision: HEAD
     # Helm config
     helm:
-      releaseName: jenkins-cd
+      #releaseName: jenkins-cd
       valueFiles:
         - values.yaml # File values.yaml của bạn
   project: default
