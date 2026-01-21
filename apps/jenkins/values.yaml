@@ -7,7 +7,7 @@ jenkins:
       tag: "lts"
   
     serviceAccount:
-      create: false
+      create: true
       name: jenkins-sa
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
