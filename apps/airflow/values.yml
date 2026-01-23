@@ -108,12 +108,12 @@ airflow:
       dagbag_import_timeout: 300
       task_acks_late: 'True'   # Ack after complete
 
-  connections:
-    - id: aws_default
-      type: aws
-      description: AWS default connection
-      extra: |-
-        { "region_name":"ap-southeast-1" }
+  # connections:
+  #   - id: aws_default
+  #     type: aws
+  #     description: AWS default connection
+  #     extra: |-
+  #       { "region_name":"ap-southeast-1" }
         
    #t3.medium (2 vCPU/4Gi RAM) không đủ allocatable resources sau trừ system daemonsets (kube-proxy, etc. ~0.5-1 vCPU/1Gi), chỉ còn ~1.5 vCPU/3Gi; requests scheduler 2Gi CPU + 1Gi RAM vượt quá
   # Scheduler
