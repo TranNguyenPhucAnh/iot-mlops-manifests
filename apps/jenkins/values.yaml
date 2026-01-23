@@ -1,17 +1,18 @@
 jenkins:
+
+  serviceAccount:
+    create: true
+    name: jenkins-sa
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
+
   controller:
     componentName: jenkins-controller
         
     image:
       repository: jenkins/jenkins
       tag: "lts"
-  
-    serviceAccount:
-      create: true
-      name: jenkins-sa
-      annotations:
-        eks.amazonaws.com/role-arn: "arn:aws:iam::408279620390:role/jenkins-controller-irsa"
-        
+          
     existingSecret: jenkins-jcasc-secrets # load secrets
 
     admin:
