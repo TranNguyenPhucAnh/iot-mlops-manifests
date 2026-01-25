@@ -79,7 +79,7 @@ airflow:
       user: airflow_user
       pass: airflow_password
       protocol: postgresql
-      host: db.airflow.local # Record CNAME trên R53 trỏ về RDS endpoint
+      host: db.airflow.local.iot-mlops-dns # Record CNAME trên R53 trỏ về RDS endpoint
       port: 5432
       db: airflow
       sslmode: "require"
