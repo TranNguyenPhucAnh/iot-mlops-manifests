@@ -1,0 +1,11 @@
+apiVersion: v2
+name: mlflow-deployment
+description: Wrapper chart for MLflow using community Helm chart
+type: application
+version: 1.0.0
+appVersion: "3.2.0"
+
+dependencies:
+  - name: mlflow
+    version: "1.8.1"
+    repository: "https://community-charts.github.io/helm-charts"
