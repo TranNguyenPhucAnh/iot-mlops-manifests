@@ -163,8 +163,15 @@ airflow:
 
   image:
     repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
-    tag: slim-latest
+    tag: "commit-abc1234"  # Will be updated by Jenkins
     pullPolicy: IfNotPresent
+    
+  # Environment variables for MLflow
+  env:
+    - name: MLFLOW_TRACKING_URI
+      value: "http://mlflow.mlflow.svc.cluster.local:5000"
+    - name: AWS_DEFAULT_REGION
+      value: "ap-southeast-1"
 
   # Tắt Triggerer (không dùng)
   triggerer:
