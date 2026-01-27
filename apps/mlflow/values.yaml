@@ -1,0 +1,25 @@
+mlflow:
+    backendStore:
+      postgres:
+        enabled: true
+        host: db.airflow.local.iot-mlops-dns
+        port: 5432
+        database: mlflow
+        user: mlflow_user
+        password: mlflow_password
+    
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/AirflowAccessRole
+    
+    artifactRoot:
+      s3:
+        enabled: true
+        bucket: iot-bme680-data-lake-prod
+        path: mlflow-artifacts
+    
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
