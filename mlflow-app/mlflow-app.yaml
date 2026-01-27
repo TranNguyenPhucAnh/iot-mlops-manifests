@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://community-charts.github.io/helm-charts
-    chart: mlflow
-    targetRevision: 1.8.1
+    repoURL: 'https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git'
+    targetRevision: main
+    path: apps/mlflow
     helm:
       valueFiles:
        - values.yaml
