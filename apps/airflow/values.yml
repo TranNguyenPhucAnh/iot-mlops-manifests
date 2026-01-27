@@ -140,10 +140,10 @@ airflow:
     resources:
       requests:
         cpu: "500m"      # Giảm mạnh CPU Request để nhường chỗ cho Jenkins
-        memory: "3Gi"    # GIỮ NGUYÊN mức RAM bạn đã test ổn định
+        memory: "2Gi"    # GIỮ NGUYÊN mức RAM bạn đã test ổn định
       limits:
         cpu: "1000m"     # Cho phép nó "bung" lên khi cần
-        memory: "6Gi"
+        memory: "4Gi"
     persistence:
       enabled: false
       
