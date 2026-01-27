@@ -161,6 +161,11 @@ airflow:
         cpu: "1Gi"
         memory: "2Gi"
 
+  image:
+    repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
+    tag: slim-latest
+    pullPolicy: IfNotPresent
+
   # Tắt Triggerer (không dùng)
   triggerer:
     enabled: false
