@@ -163,7 +163,7 @@ airflow:
 
   image:
     repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
-    tag: "commit-abc1234"  # Will be updated by Jenkins
+    tag: "latest"
     pullPolicy: IfNotPresent
     
   # Environment variables for MLflow
