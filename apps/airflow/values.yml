@@ -161,11 +161,6 @@ airflow:
         cpu: "1Gi"
         memory: "2Gi"
 
-  image:
-    repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
-    tag: "latest"
-    pullPolicy: IfNotPresent
-    
   # Environment variables for MLflow
   env:
     - name: MLFLOW_TRACKING_URI
