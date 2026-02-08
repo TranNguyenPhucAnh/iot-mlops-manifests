@@ -1,10 +1,10 @@
 mlflow:
   # Sửa từ Array sang Object để khớp với Schema
   extraEnvVars:
-    # Cho phép Gunicorn chấp nhận các header Forwarded từ K8s Service/Ingress
-    GUNICORN_CMD_ARGS: "--forwarded-allow-ips='*' --proxy-allow-from='*'"
-    # Nếu bạn dùng một custom framework bọc ngoài có hỗ trợ biến này:
-    MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+    # MLflow 3.5+ mặc định chặn Host header nội bộ, env controls Host headers mà server chấp nhận
+    # Nếu có Ingress/reverse proxy/expose MLflow qua Ingress với host value mlflow.my-domain.com, cũng cần thêm host đó dưới dạng
+    # value: mlflow.my-domain.com,mlflow.mlflow.svc.cluster.local,localhost
+    MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow.mlflow.svc.cluster.local,mlflow.mlflow,localhost,127.0.0.1"
 
   backendStore:
     postgres:
