@@ -18,6 +18,11 @@ mlflow:
         enabled: true
         bucket: iot-bme680-data-lake-prod
         path: mlflow-artifacts
+
+      # THÊM PHẦN NÀY
+    extraEnvVars:
+      - name: GUNICORN_CMD_ARGS
+      value: "--forwarded-allow-ips='*'"
     
     resources:
       requests:
