@@ -171,7 +171,7 @@ airflow:
   # Environment variables for MLflow
   env:
     - name: MLFLOW_TRACKING_URI
-      value: "http://mlflow.mlflow.svc.cluster.local:5000"
+      value: "http://mlflow.mlflow.svc.cluster.local:80"
     - name: AWS_DEFAULT_REGION
       value: "ap-southeast-1"
 
