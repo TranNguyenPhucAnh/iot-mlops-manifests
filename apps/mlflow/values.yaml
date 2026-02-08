@@ -1,10 +1,8 @@
 mlflow:
-  # Thêm phần cấu hình lệnh chạy để xử lý lỗi Host Header
+  # Sửa từ Array sang Object để khớp với Schema
   extraArgs: 
-    - --host
-    - 0.0.0.0
-    - --gunicorn-opts
-    - "--forwarded-allow-ips='*' --proxy-allow-from='*' --access-logfile - --error-logfile -"
+    host: "0.0.0.0"
+    gunicorn-opts: "--forwarded-allow-ips='*' --proxy-allow-from='*' --access-logfile - --error-logfile -"
 
   backendStore:
     postgres:
@@ -18,17 +16,10 @@ mlflow:
   serviceAccount:
     create: true
     annotations:
-      # Sử dụng IRSA hiện có để MLflow ghi log vào S3
       eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/AirflowAccessRole
   
   artifactRoot:
     s3:
       enabled: true
-      # Đảm bảo bucket này trùng với Data Lake bạn đã thiết lập
       bucket: iot-bme680-data-lake-prod
       path: mlflow-artifacts
-  
-  resources:
-    requests:
-      cpu: "200m"
-      memory: "512Mi"
