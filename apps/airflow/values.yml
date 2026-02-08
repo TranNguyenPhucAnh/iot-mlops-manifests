@@ -172,6 +172,10 @@ airflow:
   env:
     - name: MLFLOW_TRACKING_URI
       value: "http://mlflow.mlflow.svc.cluster.local:80"
+    - name: MLFLOW_SERVER_ALLOWED_HOSTS # MLflow chặn Host header nội bộ, env controls Host headers that server allows
+      # Nếu có Ingress/reverse proxy/expose MLflow qua Ingress với host kiểu mlflow.my-domain.com, cũng cần thêm host đó
+      # value: mlflow.my-domain.com,mlflow.mlflow.svc.cluster.local,localhost
+      value: "mlflow.mlflow.svc.cluster.local,mlflow.mlflow,localhost,127.0.0.1"
     - name: AWS_DEFAULT_REGION
       value: "ap-southeast-1"
 
