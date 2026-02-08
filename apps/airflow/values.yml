@@ -161,10 +161,11 @@ airflow:
         cpu: "1Gi"
         memory: "2Gi"
 
-  image:
-    repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
-    tag: "commit-715f67b"
-    pullPolicy: IfNotPresent
+  images:
+    airflow:
+      repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
+      tag: "commit-715f67b"
+      pullPolicy: IfNotPresent
     
   # Environment variables for MLflow
   env:
