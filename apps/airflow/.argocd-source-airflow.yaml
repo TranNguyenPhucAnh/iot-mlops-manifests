@@ -1,8 +1,8 @@
 helm:
   parameters:
-  - name: airflow.image.repository
+  - name: images.airflow.repository
     value: 408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo
     forcestring: true
-  - name: airflow.image.tag
+  - name: images.airflow.tag
     value: commit-28d6880
     forcestring: true
