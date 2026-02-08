@@ -21,7 +21,7 @@ mlflow:
 
       # THÊM PHẦN NÀY
     extraEnvVars:
-      - name: GUNICORN_CMD_ARGS
+      name: GUNICORN_CMD_ARGS
       value: "--forwarded-allow-ips='*'"
     
     resources:
