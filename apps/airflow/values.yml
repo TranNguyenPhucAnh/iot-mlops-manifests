@@ -166,7 +166,8 @@ airflow:
       repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
       tag: "commit-28d6880"
       pullPolicy: IfNotPresent
-    
+      digest: ""  # Khi có digest, Kubernetes sẽ detect change
+
   # Environment variables for MLflow
   env:
     - name: MLFLOW_TRACKING_URI
