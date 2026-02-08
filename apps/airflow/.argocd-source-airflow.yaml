@@ -4,5 +4,5 @@ helm:
     value: 408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo
     forcestring: true
   - name: images.airflow.tag
-    value: latest
+    value: commit-28d6880
     forcestring: true
