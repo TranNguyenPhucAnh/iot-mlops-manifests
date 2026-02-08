@@ -1,6 +1,6 @@
 mlflow:
   # Sửa từ Array sang Object để khớp với Schema
-  extraEnv:
+  extraEnvVars:
     # Cho phép Gunicorn chấp nhận các header Forwarded từ K8s Service/Ingress
     GUNICORN_CMD_ARGS: "--forwarded-allow-ips='*' --proxy-allow-from='*'"
     # Nếu bạn dùng một custom framework bọc ngoài có hỗ trợ biến này:
