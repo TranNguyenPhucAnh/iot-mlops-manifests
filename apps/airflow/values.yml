@@ -168,8 +168,7 @@ airflow:
       pullPolicy: Always
       
   airflowPodAnnotations:
-    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-    image-tag: "{{ .Values.images.airflow.tag }}"  # Force update khi tag đổi
+    image-tag: ""  # Force update khi tag đổi
 
   # Environment variables for MLflow
   env:
