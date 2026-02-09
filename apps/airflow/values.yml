@@ -166,6 +166,10 @@ airflow:
       repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
       tag: "commit-28d6880"
       pullPolicy: Always
+      
+  airflowPodAnnotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    image-tag: "{{ .Values.images.airflow.tag }}"  # Force update khi tag đổi
 
   # Environment variables for MLflow
   env:
