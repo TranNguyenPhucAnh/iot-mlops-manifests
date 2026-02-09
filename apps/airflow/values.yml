@@ -118,6 +118,8 @@ airflow:
    #t3.medium (2 vCPU/4Gi RAM) không đủ allocatable resources sau trừ system daemonsets (kube-proxy, etc. ~0.5-1 vCPU/1Gi), chỉ còn ~1.5 vCPU/3Gi; requests scheduler 2Gi CPU + 1Gi RAM vượt quá
   # Scheduler
   scheduler:
+    podAnnotations:
+      image-tag: ""
     serviceAccount:
       create: true  # ← Để chart tự tạo
       annotations:
@@ -132,6 +134,8 @@ airflow:
 
   # Worker (Celery)
   workers:
+    podAnnotations:
+      image-tag: ""
     replicas: 1  # Giữ 1 dev
     serviceAccount:
       create: true  # ← Để chart tự tạo
@@ -148,6 +152,8 @@ airflow:
       enabled: false
       
   apiServer:
+    podAnnotations:
+      image-tag: ""
     replicas: 1  # HA setup
     serviceAccount:
       create: true  # ← Để chart tự tạo
@@ -166,9 +172,6 @@ airflow:
       repository: "408279620390.dkr.ecr.ap-southeast-1.amazonaws.com/iot-mlops-repo"
       tag: "commit-28d6880"
       pullPolicy: Always
-      
-  airflowPodAnnotations:
-    image-tag: ""  # Force update khi tag đổi
 
   # Environment variables for MLflow
   env:
