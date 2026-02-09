@@ -6,3 +6,5 @@ helm:
   - name: images.airflow.tag
     value: commit-19acef8
     forcestring: true
+  - name: images.airflow.pullPolicy
+    value: Always
