@@ -85,7 +85,6 @@ airflow:
       db: airflow
       sslmode: "require"
     brokerUrl: redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0
-    brokerUrlSecretName: "airflow-broker-url"  # Tham chiếu external (Celery)
 
   # Cấu hình Airflow core
   config:
