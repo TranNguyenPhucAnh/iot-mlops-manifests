@@ -2,7 +2,7 @@
 # Executor (giữ CeleryExecutor mặc định, dùng Redis)
 airflow:
   executor: CeleryExecutor
-  fernetKey: "***REMOVED***="
+  fernetKeySecretName: "airflow-fernet-key"
   # Celery configuration
   celery:
     worker_concurrency: 8 # Fixed slots
