@@ -61,7 +61,6 @@ airflow:
   createUserJob:
     useHelmHooks: false
     applyCustomEnv: false
-    ttlSecondsAfterFinished: 60  # Delete Job 1 min after completion
 
   migrateDatabaseJob:
     useHelmHooks: false
