@@ -1,0 +1,39 @@
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      # Lưu trữ metrics trên EBS cho bền vững
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp2
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 20Gi
+      # Cấu hình để Prometheus có thể "nhìn" thấy các Service bên ngoài Cluster (như Pi 3)
+      additionalScrapeConfigs:
+        - job_name: 'raspberry-pi-3'
+          static_configs:
+            - targets: ['192.168.1.99:9100']
+
+  grafana:
+    adminPassword: "admin" # Nên dùng Secret trong thực tế
+    ingress:
+      enabled: false # Tạm thời dùng port-forward để test
+    # Cấu hình sẵn để Grafana tự nạp Dashboard của Airflow/MLflow nếu có
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+
+  # Vô hiệu hóa các thành phần không cần thiết để tiết kiệm RAM trên t3.large
+  alertmanager:
+    enabled: true
+    spec:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp2
+            resources:
+              requests:
+                storage: 5Gi
