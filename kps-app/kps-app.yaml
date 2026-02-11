@@ -18,4 +18,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true # Quan trọng cho KPS vì CRD rất lớn
+       # CRDs KPS (Prometheus, ServiceMonitor, Alertmanager) rất lớn, K8S lưu cấu hình object vào annotation, vốn limit 256KB, server (EKS Control Plane) tự quản lý việc so khớp (merge) các trường dữ liệu, loại bỏ limit
+      - ServerSideApply=true
