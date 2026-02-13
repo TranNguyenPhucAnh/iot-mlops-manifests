@@ -61,7 +61,9 @@ airflow:
   createUserJob:
     useHelmHooks: false
     applyCustomEnv: false
-    ttlSecondsAfterFinished: 300  # Delete Job 5 min after completion
+    annotations:
+      argocd.argoproj.io/hook: Sync
+      argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 
   migrateDatabaseJob:
     useHelmHooks: false
