@@ -61,9 +61,9 @@ airflow:
   createUserJob:
     useHelmHooks: false
     applyCustomEnv: false
-    annotations:
+    annotations: # make the job rerun on every sync, might not suit for long-running jobs that take hours/days
       argocd.argoproj.io/hook: Sync
-      argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+      argocd.argoproj.io/hook-delete-policy: BeforeHookCreation 
 
   migrateDatabaseJob:
     useHelmHooks: false
