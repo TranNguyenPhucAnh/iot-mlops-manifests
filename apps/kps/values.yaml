@@ -14,7 +14,7 @@ kube-prometheus-stack:
       additionalScrapeConfigs:
         - job_name: 'raspberry-pi-3'
           static_configs:
-            - targets: ['192.168.1.99:9100']
+            - targets: ['pi-metrics.bookstore-demo.online'] # cloudflare tunnel public hostname
 
   grafana:
     adminPassword: "admin" # Nên dùng Secret trong thực tế
