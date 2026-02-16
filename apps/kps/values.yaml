@@ -25,6 +25,9 @@ kube-prometheus-stack:
       dashboards:
         enabled: true
         label: grafana_dashboard
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/athena-s3-access-policy
 
   # Vô hiệu hóa các thành phần không cần thiết để tiết kiệm RAM trên t3.large
   alertmanager:
