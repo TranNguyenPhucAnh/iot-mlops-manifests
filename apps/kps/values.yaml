@@ -26,6 +26,8 @@ kube-prometheus-stack:
         enabled: true
         label: grafana_dashboard
     serviceAccount:
+      create: true
+      name: grafana-athena-sa
       annotations:
         eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/grafana-athena-access
 
