@@ -8,5 +8,5 @@ provisioner: ebs.csi.aws.com # dynamic provisioning: CSI driver provision EBS vo
 parameters:
   type: gp3
   fsType: ext4
-reclaimPolicy: Delete
+reclaimPolicy: Delete # controller CSI quản lý vòng đời EBS, khi cluster bị xóa trước, driver cũng bị xoá theo => PVC không trigger delete volume, cần xoá thủ công
 volumeBindingMode: WaitForFirstConsumer
