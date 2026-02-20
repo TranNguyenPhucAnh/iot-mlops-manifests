@@ -144,6 +144,6 @@ jenkins:
     readSecrets: true
 
   persistence:
-    enabled: true
-    storageClass: gp3
+    enabled: true # tạo PVC
+    storageClass: gp3 # storageclass-gp3.yaml: metadata.name.gp3
     size: 8Gi
