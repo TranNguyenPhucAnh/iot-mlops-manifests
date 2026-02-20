@@ -4,7 +4,7 @@ metadata:
   name: gp3
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
-provisioner: ebs.csi.aws.com
+provisioner: ebs.csi.aws.com # dynamic provisioning: CSI driver provision EBS volume đã config trong values.yaml và attach vào Jenkins pod
 parameters:
   type: gp3
   fsType: ext4
