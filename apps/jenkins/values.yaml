@@ -145,5 +145,5 @@ jenkins:
 
   persistence:
     enabled: true # tạo PVC
-    storageClass: gp3 # storageclass-gp3.yaml: metadata.name.gp3
+    storageClass: gp3 # phải trùng metadata.name: gp3 của file manifest có kind: StorageClass
     size: 8Gi
