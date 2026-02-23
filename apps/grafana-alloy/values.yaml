@@ -18,6 +18,16 @@ grafana-agent:
           targets = [{ url = "https://pi-logs.bookstore-demo.online/loki/api/v1/push" }]
           forward_to = [loki.write.loki.receiver]
         }
+
+        --- ĐẦU NHẬN (RECEIVERS) ---
+        // Thành phần này mở port 3100 bên trong Pod Alloy để nhận log push từ ngoài vào
+        loki.source.api "receiver_from_pi" {
+          http {
+            listen_address = "0.0.0.0"
+            listen_port    = 3100
+          }
+          forward_to = [loki.write.loki.receiver]
+        }
         
         // Airflow K8s logs
         loki.source.kubernetes "airflow" {
@@ -36,7 +46,9 @@ grafana-agent:
         prometheus.remote_write "prom" {
           endpoint { url = "http://monitoring-stack-kube-prom-prometheus.monitoring.svc:9090/api/v1/write" }
         }
+        // --- ĐẦU ĐẨY (EXPORTERS) ---
         loki.write "loki" {
+        // Đây là nơi Alloy đẩy log vào database Loki thực sự
           endpoint { url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push" }
         }
         otelcol.exporter.otlp "tempo" {
