@@ -1,23 +1,46 @@
-alloy:
-  configReloader:
+grafana-agent:
+  alloy:
+    clustering:
+      enabled: true
+    configMap:
+      content: |
+        // Pi 3 metrics (tunnel)
+        discovery.http "pi3" {
+          targets = [{ __address__ = "https://pi-metrics.bookstore-demo.online:9100", job = "pi3" }]
+        }
+        prometheus.scrape "pi3" {
+          targets = discovery.http.pi3.targets
+          forward_to = [prometheus.remote_write.prom.receiver]
+        }
+        
+        // Pi 3 logs (Fluent Bit hoặc file tail tunnel)
+        loki.source.http "pi_logs" {
+          targets = [{ url = "https://pi-logs.bookstore-demo.online/loki/api/v1/push" }]
+          forward_to = [loki.write.loki.receiver]
+        }
+        
+        // Airflow K8s logs
+        loki.source.kubernetes "airflow" {
+          targets = discovery.kubernetes.pods.targets
+          namespaces = ["airflow"]
+          forward_to = [loki.write.loki.receiver]
+        }
+        
+        // Tracing Tempo
+        otelcol.receiver.otlp "default" {
+          output {
+            traces = [otelcol.exporter.otlp.tempo.default.receiver]
+          }
+        }
+        
+        prometheus.remote_write "prom" {
+          endpoint { url = "http://monitoring-stack-kube-prom-prometheus.monitoring.svc:9090/api/v1/write" }
+        }
+        loki.write "loki" {
+          endpoint { url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push" }
+        }
+        otelcol.exporter.otlp "tempo" {
+          client { endpoint = "tempo.logging.svc:4317" }
+        }
+  watch:
     enabled: true
-  # File cấu hình Alloy (River syntax)
-  config: |
-    logging {
-      level  = "info"
-      format = "logfmt"
-    }
-
-    # Endpoint nhận Log từ Pi 3
-    loki.write "local_loki" {
-      endpoint {
-        url = "http://loki-gateway.monitoring.svc.cluster.local:3100/loki/api/v1/push"
-      }
-    }
-
-    # Endpoint nhận Metrics từ Pi 3 (Remote Write)
-    prometheus.remote_write "local_prom" {
-      endpoint {
-        url = "http://monitoring-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
-      }
-    }
