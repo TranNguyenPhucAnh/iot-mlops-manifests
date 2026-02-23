@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cloudflared-receiver
+description: Helm chart for Cloudflare Tunnel receiver on EKS
+type: application
+version: 0.1.0
+appVersion: "latest"
