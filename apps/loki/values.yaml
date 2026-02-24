@@ -26,41 +26,41 @@ loki:
   limits_config:
     retention_period: 168h  # 7 ngày
 
-deploymentMode: SingleBinary
-
-singleBinary:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-
-  persistence:
-    enabled: true
-    size: 10Gi
-    storageClass: gp3
-
-  serviceAccount:
-    create: true
-    name: loki-sa
-    annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/LokiS3AccessRole
-
-monitoring:
-  selfMonitoring:
+  deploymentMode: SingleBinary
+  
+  singleBinary:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: gp3
+  
+    serviceAccount:
+      create: true
+      name: loki-sa
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/LokiS3AccessRole
+  
+  monitoring:
+    selfMonitoring:
+      enabled: false
+    serviceMonitor:
+      enabled: false
+  
+  gateway:
     enabled: false
-  serviceMonitor:
-    enabled: false
-
-gateway:
-  enabled: false
-
-backend:
-  replicas: 0
-read:
-  replicas: 0
-write:
-  replicas: 0
+  
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
