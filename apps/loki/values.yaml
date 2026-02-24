@@ -19,9 +19,9 @@ loki:
     aws:
       s3: s3://ap-southeast-1/iot-bme680-data-lake-prod
       bucketnames:
-        chunks: loki-chunks
-        ruler: loki-ruler
-        admin: loki-admin
+        chunks: iot-bme680-data-lake-prod
+        ruler: iot-bme680-data-lake-prod
+        admin: iot-bme680-data-lake-prod
       s3forcepathstyle: false
       prefix: loki/  # Tất cả dữ liệu Loki nằm dưới prefix này trong bucket
     boltdb_shipper:
