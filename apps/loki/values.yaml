@@ -61,8 +61,10 @@ singleBinary:
     storageClass: gp3
 
   serviceAccount:
+    create: true
+    name: loki-sa
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/loki-s3-role
+      eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/LokiS3AccessRole
 
 monitoring:
   selfMonitoring:
