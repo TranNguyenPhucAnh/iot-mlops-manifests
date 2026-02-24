@@ -1,0 +1,64 @@
+loki:
+  commonConfig:
+    replication_factor: 1   # single instance, không cần replication
+
+  storage:
+    type: s3
+    s3:
+      region: ap-southeast-1          # đổi theo region của bạn
+      bucketnames: iot-bme680-data-lake-prod  # dùng chung bucket, khác prefix
+      s3ForcePathStyle: false
+
+  storage_config:
+    aws:
+      s3: s3://ap-southeast-1/iot-bme680-data-lake-prod
+      prefix: loki/                   # tách biệt với data IoT
+
+  schemaConfig:
+    configs:
+      - from: "2026-01-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  limits_config:
+    retention_period: 168h            # 7 ngày — khớp với training DAG
+
+# Monolithic mode — 1 pod duy nhất
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Dùng IRSA thay vì access key — EKS best practice
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::408279620390:role/loki-s3-role
+
+# Tắt các thứ không cần cho setup nhỏ
+monitoring:
+  selfMonitoring:
+    enabled: false
+  serviceMonitor:
+    enabled: false          # bật sau nếu muốn Prometheus scrape Loki metrics
+
+gateway:
+  enabled: false            # không cần nginx gateway cho setup đơn giản
+
+# Tắt các component microservices — chỉ dùng singleBinary
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
