@@ -185,3 +185,10 @@ alloy:
   # Chạy như DaemonSet để collect logs từ tất cả nodes
   controller:
     type: daemonset
+
+kube-state-metrics:
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 10m
+  tolerations: []
