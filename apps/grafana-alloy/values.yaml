@@ -91,20 +91,22 @@ alloy:
             replacement   = "/api/v1/nodes/$1/proxy/metrics"
           }
         }
-
+        
         discovery.relabel "kube_state_metrics" {
           targets = discovery.kubernetes.kube_state_metrics.targets
           
+          // Đổi rule keep này sang check service name chính xác hơn
           rule {
-            source_labels = ["__meta_kubernetes_service_label_app_kubernetes_io_name"]
-            regex         = "kube-state-metrics"
+            source_labels = ["__meta_kubernetes_service_name"]
+            regex         = ".*kube-state-metrics.*"
             action        = "keep"
           }
+          
+          // Đảm bảo port 8080 được sử dụng
           rule {
             source_labels = ["__address__"]
-            regex         = "(.*):\\d+"
-            replacement   = "$1:8080"  # Port mặc định KSM
             target_label  = "__address__"
+            replacement   = "$1" // Giữ nguyên address từ discovery vì KSM service port thường là 8080
           }
         }
         
@@ -208,5 +210,13 @@ kube-state-metrics:
       prometheus.io/scrape: "true"
       prometheus.io/port: "8080"  # HTTP metrics port
       prometheus.io/path: "/metrics"
+  collectors:
+    - configmaps
+    - secrets
+    - nodes
+    - pods
+    - services
+    - deployments
+    - statefulsets
   extraArgs:
     - --resources=configmaps  # Explicit enable ConfigMap metrics
