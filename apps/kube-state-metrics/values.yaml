@@ -1,5 +1,0 @@
-kube-state-metrics:
-  resources:
-    requests:
-      memory: 64Mi
-      cpu: 10m
