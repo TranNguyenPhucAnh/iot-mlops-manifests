@@ -78,7 +78,7 @@ alloy:
 
         prometheus.remote_write "grafana_cloud" {
           endpoint {
-            url = "https://prometheus-prod-37-prod-ap-southeast-1.grafana.net/api/prom"
+            url = "https://prometheus-prod-37-prod-ap-southeast-1.grafana.net/api/prom/push"
             basic_auth {
               username = env("GRAFANA_PROM_INSTANCE_ID")
               password = env("GRAFANA_CLOUD_API_KEY")
