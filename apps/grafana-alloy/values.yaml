@@ -131,6 +131,17 @@ alloy:
             target_label  = "node"
           }
         }
+
+        discovery.kubernetes "node_exporter" {
+          role = "pod"
+          namespaces {
+            names = ["monitoring"]
+          }
+          selectors {
+            role  = "pod"
+            label = "app.kubernetes.io/name=prometheus-node-exporter"
+          }
+        }
         
         // ============ 3. SCRAPES SAU ============
         
@@ -159,7 +170,13 @@ alloy:
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
-        
+
+        prometheus.scrape "node_exporter" {
+          targets         = discovery.kubernetes.node_exporter.targets
+          scrape_interval = "30s"
+          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+        }
+
         // ============ 4. LOGS ============
         
         loki.source.kubernetes "airflow" {
@@ -207,6 +224,18 @@ alloy:
   # Chạy như DaemonSet để collect logs từ tất cả nodes
   controller:
     type: daemonset
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      memory: 32Mi
+      cpu: 10m
+  tolerations:
+    - operator: Exists  # Chạy trên tất cả nodes kể cả tainted
+  service:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9100"
 
 kube-state-metrics:
   resources:
