@@ -4,10 +4,6 @@ alloy:
       enabled: true
     statsd:
       enabled: true
-    podAnnotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "9102"
-      prometheus.io/path: "/metrics"
     configMap:
       content: |
         // ============ 1. EXPORTERS TRƯỚC ============
@@ -73,60 +69,13 @@ alloy:
         }
         
         discovery.kubernetes "kube_state_metrics" {
-          role = "service"
+          role = "endpoints"
           namespaces {
             names = ["monitoring"]
           }
           selectors {
             role  = "service"
             label = "app.kubernetes.io/name=kube-state-metrics"
-          }
-        }
-        
-        discovery.relabel "airflow_pods" {
-          targets = discovery.kubernetes.airflow_pods.targets
-        
-          // Chỉ scrape pod có annotation prometheus.io/scrape=true
-          rule {
-            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
-            regex         = "true"
-            action        = "keep"
-          }
-        
-          // Dùng port từ annotation nếu có
-          rule {
-            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port"]
-            regex         = "(.+)"
-            target_label  = "__address__"
-            replacement   = "${__meta_kubernetes_pod_ip}:$1"
-          }
-        
-          // Dùng path từ annotation nếu có
-          rule {
-            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
-            regex         = "(.+)"
-            target_label  = "__metrics_path__"
-            replacement   = "$1"
-          }
-        
-          // Bỏ qua completed pods
-          rule {
-            source_labels = ["__meta_kubernetes_pod_phase"]
-            regex         = "Succeeded|Failed"
-            action        = "drop"
-          }
-        
-          rule {
-            source_labels = ["__meta_kubernetes_namespace"]
-            target_label  = "namespace"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_name"]
-            target_label  = "pod"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_label_app"]
-            target_label  = "app"
           }
         }
         
@@ -140,6 +89,22 @@ alloy:
             source_labels = ["__meta_kubernetes_node_name"]
             target_label  = "__metrics_path__"
             replacement   = "/api/v1/nodes/$1/proxy/metrics"
+          }
+        }
+
+        discovery.relabel "kube_state_metrics" {
+          targets = discovery.kubernetes.kube_state_metrics.targets
+          
+          rule {
+            source_labels = ["__meta_kubernetes_service_label_app_kubernetes_io_name"]
+            regex         = "kube-state-metrics"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__address__"]
+            regex         = "(.*):\\d+"
+            replacement   = "$1:8080"  # Port mặc định KSM
+            target_label  = "__address__"
           }
         }
         
@@ -179,7 +144,7 @@ alloy:
         }
         
         prometheus.scrape "kube_state_metrics" {
-          targets         = discovery.kubernetes.kube_state_metrics.targets
+          targets         = discovery.relabel.kube_state_metrics.output
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
@@ -238,3 +203,10 @@ kube-state-metrics:
       memory: 64Mi
       cpu: 10m
   tolerations: []
+  service:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"  # HTTP metrics port
+      prometheus.io/path: "/metrics"
+  extraArgs:
+    - --resources=configmaps  # Explicit enable ConfigMap metrics
