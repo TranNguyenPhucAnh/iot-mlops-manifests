@@ -2,7 +2,12 @@ alloy:
   alloy:
     clustering:
       enabled: true
-
+    statsd:
+      enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9102"
+      prometheus.io/path: "/metrics"
     configMap:
       content: |
         // ============ 1. EXPORTERS TRƯỚC ============
@@ -80,12 +85,37 @@ alloy:
         
         discovery.relabel "airflow_pods" {
           targets = discovery.kubernetes.airflow_pods.targets
-          // Bỏ qua pods đã Succeeded hoặc Failed
+        
+          // Chỉ scrape pod có annotation prometheus.io/scrape=true
+          rule {
+            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+            regex         = "true"
+            action        = "keep"
+          }
+        
+          // Dùng port từ annotation nếu có
+          rule {
+            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port"]
+            regex         = "(.+)"
+            target_label  = "__address__"
+            replacement   = "${__meta_kubernetes_pod_ip}:$1"
+          }
+        
+          // Dùng path từ annotation nếu có
+          rule {
+            source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+            regex         = "(.+)"
+            target_label  = "__metrics_path__"
+            replacement   = "$1"
+          }
+        
+          // Bỏ qua completed pods
           rule {
             source_labels = ["__meta_kubernetes_pod_phase"]
             regex         = "Succeeded|Failed"
             action        = "drop"
           }
+        
           rule {
             source_labels = ["__meta_kubernetes_namespace"]
             target_label  = "namespace"
@@ -93,10 +123,6 @@ alloy:
           rule {
             source_labels = ["__meta_kubernetes_pod_name"]
             target_label  = "pod"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_container_name"]
-            target_label  = "container"
           }
           rule {
             source_labels = ["__meta_kubernetes_pod_label_app"]
