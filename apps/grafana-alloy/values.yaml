@@ -5,17 +5,81 @@ alloy:
 
     configMap:
       content: |
-        // ============ DISCOVERY ============
+        // ============ 1. EXPORTERS TRƯỚC ============
+
+        prometheus.remote_write "grafana_cloud" {
+          endpoint {
+            url = "https://prometheus-prod-37-prod-ap-southeast-1.grafana.net/api/prom/push"
+            basic_auth {
+              username = env("GRAFANA_PROM_INSTANCE_ID")
+              password = env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+          external_labels = {
+            cluster = "eks-airflow",
+          }
+        }
+        
+        loki.write "grafana_cloud" {
+          endpoint {
+            url = "https://logs-prod-020.grafana.net/loki/api/v1/push"
+            basic_auth {
+              username = env("GRAFANA_LOKI_INSTANCE_ID")
+              password = env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+          external_labels = {
+            cluster   = "eks-airflow",
+            namespace = "airflow",
+          }
+        }
+        
+        otelcol.auth.basic "grafana_creds" {
+          username = env("GRAFANA_OTLP_INSTANCE_ID")
+          password = env("GRAFANA_CLOUD_API_KEY")
+        }
+        
+        otelcol.exporter.otlphttp "grafana_cloud" {
+          client {
+            endpoint = "https://otlp-gateway-prod-ap-southeast-1.grafana.net/otlp"
+            auth     = otelcol.auth.basic.grafana_creds.handler
+          }
+        }
+        
+        otelcol.processor.batch "default" {
+          timeout         = "1s"
+          send_batch_size = 1000
+          output {
+            traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
+          }
+        }
+        
+        // ============ 2. DISCOVERY ============
+        
+        discovery.kubernetes "nodes" {
+          role = "node"
+        }
+        
         discovery.kubernetes "airflow_pods" {
           role = "pod"
           namespaces {
             names = ["airflow"]
           }
         }
-
+        
+        discovery.kubernetes "kube_state_metrics" {
+          role = "service"
+          namespaces {
+            names = ["monitoring"]
+          }
+          selectors {
+            role  = "service"
+            label = "app.kubernetes.io/name=kube-state-metrics"
+          }
+        }
+        
         discovery.relabel "airflow_pods" {
           targets = discovery.kubernetes.airflow_pods.targets
-
           rule {
             source_labels = ["__meta_kubernetes_namespace"]
             target_label  = "namespace"
@@ -33,34 +97,7 @@ alloy:
             target_label  = "app"
           }
         }
-
-        // ============ LOGS — Loki ============
-        loki.source.kubernetes "airflow" {
-          targets    = discovery.relabel.airflow_pods.output
-          forward_to = [loki.write.grafana_cloud.receiver]
-        }
-
-        loki.write "grafana_cloud" {
-          endpoint {
-            url = "https://logs-prod-020.grafana.net/loki/api/v1/push"
-            basic_auth {
-              username = env("GRAFANA_LOKI_INSTANCE_ID")
-              password = env("GRAFANA_CLOUD_API_KEY")
-            }
-          }
-          external_labels = {
-            cluster   = "eks-airflow",
-            namespace = "airflow",
-          }
-        }
-
-        // ============ METRICS ============
-
-        // 1. Kubelet metrics (node-level)
-        discovery.kubernetes "nodes" {
-          role = "node"
-        }
-
+        
         discovery.relabel "kubelet" {
           targets = discovery.kubernetes.nodes.targets
           rule {
@@ -73,18 +110,7 @@ alloy:
             replacement   = "/api/v1/nodes/$1/proxy/metrics"
           }
         }
-
-        prometheus.scrape "kubelet" {
-          targets    = discovery.relabel.kubelet.output
-          scheme     = "https"
-          tls_config {
-            insecure_skip_verify = true
-          }
-          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
-        }
-
-        // 2. cAdvisor metrics (container CPU/memory)
+        
         discovery.relabel "cadvisor" {
           targets = discovery.kubernetes.nodes.targets
           rule {
@@ -97,36 +123,50 @@ alloy:
             replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
           }
         }
-
-        prometheus.scrape "cadvisor" {
-          targets    = discovery.relabel.cadvisor.output
-          scheme     = "https"
+        
+        // ============ 3. SCRAPES SAU ============
+        
+        prometheus.scrape "kubelet" {
+          targets           = discovery.relabel.kubelet.output
+          scheme            = "https"
           tls_config {
             insecure_skip_verify = true
           }
           bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
+          forward_to        = [prometheus.remote_write.grafana_cloud.input]
         }
-
-        // 3. kube-state-metrics (pod info, deployment status)
-        discovery.kubernetes "kube_state_metrics" {
-          role = "service"
-          namespaces {
-            names = ["monitoring"]
+        
+        prometheus.scrape "cadvisor" {
+          targets           = discovery.relabel.cadvisor.output
+          scheme            = "https"
+          tls_config {
+            insecure_skip_verify = true
           }
-          selectors {
-            role  = "service"
-            label = "app.kubernetes.io/name=kube-state-metrics"
-          }
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          forward_to        = [prometheus.remote_write.grafana_cloud.input]
         }
-
+        
         prometheus.scrape "kube_state_metrics" {
-          targets        = discovery.kubernetes.kube_state_metrics.targets
+          targets         = discovery.kubernetes.kube_state_metrics.targets
           scrape_interval = "30s"
-          forward_to     = [prometheus.remote_write.grafana_cloud.receiver]
+          forward_to      = [prometheus.remote_write.grafana_cloud.input]
         }
-
-        // ============ TRACES — Tempo via OTLP ============
+        
+        prometheus.scrape "airflow_pods" {
+          targets         = discovery.relabel.airflow_pods.output
+          scrape_interval = "30s"
+          forward_to      = [prometheus.remote_write.grafana_cloud.input]
+        }
+        
+        // ============ 4. LOGS ============
+        
+        loki.source.kubernetes "airflow" {
+          targets    = discovery.relabel.airflow_pods.output
+          forward_to = [loki.write.grafana_cloud.receiver]
+        }
+        
+        // ============ 5. TRACES ============
+        
         otelcol.receiver.otlp "airflow" {
           grpc {
             endpoint = "0.0.0.0:4317"
@@ -137,26 +177,6 @@ alloy:
           output {
             traces = [otelcol.processor.batch.default.input]
           }
-        }
-
-        otelcol.processor.batch "default" {
-          timeout         = "1s"
-          send_batch_size = 1000
-          output {
-            traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
-          }
-        }
-
-        otelcol.exporter.otlphttp "grafana_cloud" {
-          client {
-            endpoint = "https://otlp-gateway-prod-ap-southeast-1.grafana.net/otlp"
-            auth     = otelcol.auth.basic.grafana_creds.handler
-          }
-        }
-
-        otelcol.auth.basic "grafana_creds" {
-          username = env("GRAFANA_OTLP_INSTANCE_ID")
-          password = env("GRAFANA_CLOUD_API_KEY")
         }
 
     # Mở ports cho OTLP receiver
