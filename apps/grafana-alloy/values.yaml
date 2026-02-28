@@ -198,30 +198,6 @@ alloy:
   # RBAC để Alloy đọc pods/logs trên EKS
   rbac:
     create: true
-  # Override ClusterRole mặc định với đủ permissions
-  clusterRole:
-    rules:
-      # Nodes và metrics
-      - apiGroups: [""]
-        resources: ["nodes", "nodes/metrics", "nodes/proxy"]
-        verbs: ["get", "list", "watch"]
-      # Pods, services, endpoints
-      - apiGroups: [""]
-        resources: ["pods", "services", "endpoints", "namespaces"]
-        verbs: ["get", "list", "watch"]
-      # cAdvisor metrics qua proxy
-      - apiGroups: [""]
-        resources: ["nodes/proxy"]
-        verbs: ["get"]
-      # kube-state-metrics
-      - apiGroups: ["apps"]
-        resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
-        verbs: ["get", "list", "watch"]
-      # Non-resource URLs cho metrics endpoints
-      - nonResourceURLs:
-          - "/metrics"
-          - "/metrics/cadvisor"
-        verbs: ["get"]
 
   serviceAccount:
     create: true
