@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/TranNguyenPhucAnh/iot-mlops-manifests.git
-    path: apps/alloy
+    path: apps/grafana-alloy
     targetRevision: main
     helm:
       valueFiles: ["values.yaml"]
