@@ -81,14 +81,16 @@ alloy:
         
         discovery.relabel "kubelet" {
           targets = discovery.kubernetes.nodes.targets
+        
           rule {
-            target_label = "__address__"
-            replacement  = "kubernetes.default.svc:443"
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            target_label  = "__address__"
+            replacement   = "$1:10250"
           }
+        
           rule {
             source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "__metrics_path__"
-            replacement   = "/api/v1/nodes/$1/proxy/metrics"
+            target_label  = "node"
           }
         }
         
@@ -96,11 +98,11 @@ alloy:
           targets = discovery.kubernetes.kube_state_metrics.targets
           
           // Đổi rule keep này sang check service name chính xác hơn
-          # rule {
-          #   source_labels = ["__meta_kubernetes_service_name"]
-          #   regex         = ".*kube-state-metrics.*"
-          #   action        = "keep"
-          # }
+          rule {
+            source_labels = ["__meta_kubernetes_service_name"]
+            regex         = ".*kube-state-metrics.*"
+            action        = "keep"
+          }
           
           // Đảm bảo port 8080 được sử dụng
           rule {
@@ -112,14 +114,21 @@ alloy:
         
         discovery.relabel "cadvisor" {
           targets = discovery.kubernetes.nodes.targets
+        
           rule {
-            target_label = "__address__"
-            replacement  = "kubernetes.default.svc:443"
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            target_label  = "__address__"
+            replacement   = "$1:10250"
           }
+        
+          rule {
+            target_label = "__metrics_path__"
+            replacement  = "/metrics/cadvisor"
+          }
+        
           rule {
             source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "__metrics_path__"
-            replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+            target_label  = "node"
           }
         }
         
