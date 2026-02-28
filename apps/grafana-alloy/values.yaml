@@ -80,6 +80,12 @@ alloy:
         
         discovery.relabel "airflow_pods" {
           targets = discovery.kubernetes.airflow_pods.targets
+          // Bỏ qua pods đã Succeeded hoặc Failed
+          rule {
+            source_labels = ["__meta_kubernetes_pod_phase"]
+            regex         = "Succeeded|Failed"
+            action        = "drop"
+          }
           rule {
             source_labels = ["__meta_kubernetes_namespace"]
             target_label  = "namespace"
