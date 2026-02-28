@@ -145,37 +145,49 @@ alloy:
         
         discovery.relabel "cadvisor" {
           targets = discovery.kubernetes.nodes.targets
+        
           rule {
-            target_label = "__address__"
-            replacement  = "kubernetes.default.svc:443"
+            source_labels = ["__address__"]
+            regex         = "(.+)"
+            target_label  = "__address__"
+            replacement   = "$1:10250"
           }
+        
+          rule {
+            target_label = "__metrics_path__"
+            replacement  = "/metrics/cadvisor"
+          }
+        
           rule {
             source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "__metrics_path__"
-            replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+            target_label  = "node"
           }
         }
         
         // ============ 3. SCRAPES SAU ============
         
         prometheus.scrape "kubelet" {
-          targets           = discovery.relabel.kubelet.output
-          scheme            = "https"
+          targets  = discovery.relabel.kubelet.output
+          scheme   = "https"
           tls_config {
             insecure_skip_verify = true
           }
-          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
+          authorization {
+            credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          }
+          forward_to = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
         prometheus.scrape "cadvisor" {
-          targets           = discovery.relabel.cadvisor.output
-          scheme            = "https"
+          targets  = discovery.relabel.cadvisor.output
+          scheme   = "https"
           tls_config {
             insecure_skip_verify = true
           }
-          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
+          authorization {
+            credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          }
+          forward_to = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
         prometheus.scrape "kube_state_metrics" {
