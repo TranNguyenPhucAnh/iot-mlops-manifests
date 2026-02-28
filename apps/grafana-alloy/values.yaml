@@ -184,12 +184,6 @@ alloy:
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
-        prometheus.scrape "airflow_pods" {
-          targets         = discovery.relabel.airflow_pods.output
-          scrape_interval = "30s"
-          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
-        }
-        
         // ============ 4. LOGS ============
         
         loki.source.kubernetes "airflow" {
