@@ -1,9 +1,9 @@
 apiVersion: v2
 name: alloy-gitops
-description: Grafana Alloy unified agent for Pi3 + Airflow
+description: Grafana Alloy unified agent for Airflow
 type: application
 version: 0.1.0
 dependencies:
-  - name: grafana-agent
-    version: "0.44.2"
+  - name: alloy
+    version: "1.6.0"
     repository: https://grafana.github.io/helm-charts
