@@ -2,11 +2,9 @@ alloy:
   alloy:
     clustering:
       enabled: true
-    statsd:
-      enabled: true
     configMap:
       content: |
-        // ============ 1. EXPORTERS TRƯỚC ============
+       // ============ 1. EXPORTERS ============
 
         prometheus.remote_write "grafana_cloud" {
           endpoint {
@@ -30,8 +28,7 @@ alloy:
             }
           }
           external_labels = {
-            cluster   = "eks-airflow",
-            namespace = "airflow",
+            cluster = "eks-airflow",
           }
         }
         
@@ -68,8 +65,9 @@ alloy:
           }
         }
         
+        // Dùng role "service" cho kube-state-metrics
         discovery.kubernetes "kube_state_metrics" {
-          role = "endpoints"
+          role = "service"
           namespaces {
             names = ["monitoring"]
           }
@@ -79,59 +77,7 @@ alloy:
           }
         }
         
-        discovery.relabel "kubelet" {
-          targets = discovery.kubernetes.nodes.targets
-        
-          rule {
-            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
-            target_label  = "__address__"
-            replacement   = "$1:10250"
-          }
-        
-          rule {
-            source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "node"
-          }
-        }
-        
-        discovery.relabel "kube_state_metrics" {
-          targets = discovery.kubernetes.kube_state_metrics.targets
-          
-          // Đổi rule keep này sang check service name chính xác hơn
-          rule {
-            source_labels = ["__meta_kubernetes_service_name"]
-            regex         = ".*kube-state-metrics.*"
-            action        = "keep"
-          }
-          
-          // Đảm bảo port 8080 được sử dụng
-          rule {
-            source_labels = ["__address__"]
-            target_label  = "__address__"
-            replacement   = "$1" // Giữ nguyên address từ discovery vì KSM service port thường là 8080
-          }
-        }
-        
-        discovery.relabel "cadvisor" {
-          targets = discovery.kubernetes.nodes.targets
-        
-          rule {
-            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
-            target_label  = "__address__"
-            replacement   = "$1:10250"
-          }
-        
-          rule {
-            target_label = "__metrics_path__"
-            replacement  = "/metrics/cadvisor"
-          }
-        
-          rule {
-            source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "node"
-          }
-        }
-
+        // Node exporter pods
         discovery.kubernetes "node_exporter" {
           role = "pod"
           namespaces {
@@ -143,48 +89,119 @@ alloy:
           }
         }
         
-        // ============ 3. SCRAPES SAU ============
+        // ============ 3. RELABELS ============
+        
+        discovery.relabel "airflow_pods" {
+          targets = discovery.kubernetes.airflow_pods.targets
+        
+          rule {
+            source_labels = ["__meta_kubernetes_pod_phase"]
+            regex         = "Succeeded|Failed"
+            action        = "drop"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            target_label  = "pod"
+          }
+        }
+        
+        discovery.relabel "kubelet" {
+          targets = discovery.kubernetes.nodes.targets
+        
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            target_label  = "__address__"
+            replacement   = "$1:10250"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            target_label  = "node"
+          }
+        }
+        
+        discovery.relabel "cadvisor" {
+          targets = discovery.kubernetes.nodes.targets
+        
+          rule {
+            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+            target_label  = "__address__"
+            replacement   = "$1:10250"
+          }
+          rule {
+            target_label = "__metrics_path__"
+            replacement  = "/metrics/cadvisor"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            target_label  = "node"
+          }
+        }
+        
+        discovery.relabel "node_exporter" {
+          targets = discovery.kubernetes.node_exporter.targets
+        
+          // Chỉ lấy port 9100
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_port_number"]
+            regex         = "9100"
+            action        = "keep"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            target_label  = "node"
+          }
+        }
+        
+        // ============ 4. SCRAPES ============
         
         prometheus.scrape "kubelet" {
-          targets           = discovery.relabel.kubelet.output
-          scheme            = "https"
+          targets         = discovery.relabel.kubelet.output
+          scheme          = "https"
           tls_config {
             insecure_skip_verify = true
           }
-          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
+          authorization {
+            credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          }
+          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
         prometheus.scrape "cadvisor" {
-          targets           = discovery.relabel.cadvisor.output
-          scheme            = "https"
+          targets         = discovery.relabel.cadvisor.output
+          scheme          = "https"
           tls_config {
             insecure_skip_verify = true
           }
-          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
+          authorization {
+            credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          }
+          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
         prometheus.scrape "kube_state_metrics" {
-          targets         = discovery.relabel.kube_state_metrics.output
+          targets         = discovery.kubernetes.kube_state_metrics.targets
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
-
+        
         prometheus.scrape "node_exporter" {
-          targets         = discovery.kubernetes.node_exporter.targets
+          targets         = discovery.relabel.node_exporter.output
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
-
-        // ============ 4. LOGS ============
+        
+        // ============ 5. LOGS ============
         
         loki.source.kubernetes "airflow" {
           targets    = discovery.relabel.airflow_pods.output
           forward_to = [loki.write.grafana_cloud.receiver]
         }
         
-        // ============ 5. TRACES ============
+        // ============ 6. TRACES ============
         
         otelcol.receiver.otlp "airflow" {
           grpc {
