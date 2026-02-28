@@ -25,5 +25,5 @@ roleRef:
   name: alloy-metrics
 subjects:
   - kind: ServiceAccount
-    name: alloy
+    name: grafana-alloy
     namespace: monitoring
