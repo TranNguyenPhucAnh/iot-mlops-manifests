@@ -1,58 +1,150 @@
-grafana-agent:
+alloy:
   alloy:
     clustering:
       enabled: true
+
     configMap:
       content: |
-        // Pi 3 metrics (tunnel)
-        discovery.http "pi3" {
-          targets = [{ __address__ = "https://pi-metrics.bookstore-demo.online:9100", job = "pi3" }]
-        }
-        prometheus.scrape "pi3" {
-          targets = discovery.http.pi3.targets
-          forward_to = [prometheus.remote_write.prom.receiver]
-        }
-        
-        // Pi 3 logs (Fluent Bit hoặc file tail tunnel)
-        loki.source.http "pi_logs" {
-          targets = [{ url = "https://pi-logs.bookstore-demo.online/loki/api/v1/push" }]
-          forward_to = [loki.write.loki.receiver]
+        // ============ DISCOVERY ============
+        discovery.kubernetes "airflow_pods" {
+          role = "pod"
+          namespaces {
+            names = ["airflow"]
+          }
         }
 
-        --- ĐẦU NHẬN (RECEIVERS) ---
-        // Thành phần này mở port 3100 bên trong Pod Alloy để nhận log push từ ngoài vào
-        loki.source.api "receiver_from_pi" {
-          http {
-            listen_address = "0.0.0.0"
-            listen_port    = 3100
+        discovery.relabel "airflow_pods" {
+          targets = discovery.kubernetes.airflow_pods.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
           }
-          forward_to = [loki.write.loki.receiver]
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            target_label  = "pod"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            target_label  = "container"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_app"]
+            target_label  = "app"
+          }
         }
-        
-        // Airflow K8s logs
+
+        // ============ LOGS — Loki ============
         loki.source.kubernetes "airflow" {
-          targets = discovery.kubernetes.pods.targets
-          namespaces = ["airflow"]
-          forward_to = [loki.write.loki.receiver]
+          targets    = discovery.relabel.airflow_pods.output
+          forward_to = [loki.write.grafana_cloud.receiver]
         }
-        
-        // Tracing Tempo
-        otelcol.receiver.otlp "default" {
-          output {
-            traces = [otelcol.exporter.otlp.tempo.default.receiver]
+
+        loki.write "grafana_cloud" {
+          endpoint {
+            url = "https://logs-prod-020.grafana.net"
+            basic_auth {
+              username = env("GRAFANA_LOKI_INSTANCE_ID")
+              password = env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+          external_labels = {
+            cluster   = "eks-airflow",
+            namespace = "airflow",
           }
         }
-        
-        prometheus.remote_write "prom" {
-          endpoint { url = "http://monitoring-stack-kube-prom-prometheus.monitoring.svc:9090/api/v1/write" }
+
+        // ============ METRICS — Prometheus ============
+        prometheus.scrape "airflow_pods" {
+          targets         = discovery.relabel.airflow_pods.output
+          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+          scrape_interval = "30s"
+
+          // Chỉ scrape pod có annotation prometheus.io/scrape=true
         }
-        // --- ĐẦU ĐẨY (EXPORTERS) ---
-        loki.write "loki" {
-        // Đây là nơi Alloy đẩy log vào database Loki thực sự
-          endpoint { url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push" }
+
+        // Node metrics từ kubelet
+        prometheus.scrape "kubelet" {
+          targets = [{
+            __address__ = "kubernetes.default.svc:443",
+          }]
+          scheme           = "https"
+          tls_config {
+            insecure_skip_verify = true
+          }
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          forward_to        = [prometheus.remote_write.grafana_cloud.receiver]
         }
-        otelcol.exporter.otlp "tempo" {
-          client { endpoint = "tempo.logging.svc:4317" }
+
+        prometheus.remote_write "grafana_cloud" {
+          endpoint {
+            url = "https://prometheus-prod-37-prod-ap-southeast-1.grafana.net/api/prom"
+            basic_auth {
+              username = env("GRAFANA_PROM_INSTANCE_ID")
+              password = env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+          external_labels = {
+            cluster = "eks-airflow",
+          }
         }
-  watch:
-    enabled: true
+
+        // ============ TRACES — Tempo via OTLP ============
+        otelcol.receiver.otlp "airflow" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+          output {
+            traces = [otelcol.processor.batch.default.input]
+          }
+        }
+
+        otelcol.processor.batch "default" {
+          timeout         = "1s"
+          send_batch_size = 1000
+          output {
+            traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
+          }
+        }
+
+        otelcol.exporter.otlphttp "grafana_cloud" {
+          client {
+            endpoint = "https://otlp-gateway-prod-ap-southeast-1.grafana.net/otlp"
+            auth     = otelcol.auth.basic.grafana_creds.handler
+          }
+        }
+
+        otelcol.auth.basic "grafana_creds" {
+          username = env("GRAFANA_OTLP_INSTANCE_ID")
+          password = env("GRAFANA_CLOUD_API_KEY")
+        }
+
+    # Mở ports cho OTLP receiver
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
+
+    # Inject credentials từ Secret
+    envFrom:
+      - secretRef:
+          name: grafana-cloud-credentials
+
+  # RBAC để Alloy đọc pods/logs trên EKS
+  rbac:
+    create: true
+
+  serviceAccount:
+    create: true
+
+  # Chạy như DaemonSet để collect logs từ tất cả nodes
+  controller:
+    type: daemonset
