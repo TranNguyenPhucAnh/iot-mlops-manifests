@@ -32,26 +32,6 @@ alloy:
           }
         }
         
-        otelcol.auth.basic "grafana_creds" {
-          username = env("GRAFANA_OTLP_INSTANCE_ID")
-          password = env("GRAFANA_CLOUD_API_KEY")
-        }
-        
-        otelcol.exporter.otlphttp "grafana_cloud" {
-          client {
-            endpoint = "https://otlp-gateway-prod-ap-southeast-1.grafana.net/otlp"
-            auth     = otelcol.auth.basic.grafana_creds.handler
-          }
-        }
-        
-        otelcol.processor.batch "default" {
-          timeout         = "1s"
-          send_batch_size = 1000
-          output {
-            traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
-          }
-        }
-        
         // ============ 2. DISCOVERY ============
         
         discovery.kubernetes "nodes" {
@@ -123,24 +103,6 @@ alloy:
           }
         }
         
-        discovery.relabel "cadvisor" {
-          targets = discovery.kubernetes.nodes.targets
-        
-          rule {
-            source_labels = ["__meta_kubernetes_node_address_InternalIP"]
-            target_label  = "__address__"
-            replacement   = "$1:10250"
-          }
-          rule {
-            target_label = "__metrics_path__"
-            replacement  = "/metrics/cadvisor"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_node_name"]
-            target_label  = "node"
-          }
-        }
-        
         discovery.relabel "node_exporter" {
           targets = discovery.kubernetes.node_exporter.targets
         
@@ -160,6 +122,7 @@ alloy:
         
         prometheus.scrape "kubelet" {
           targets         = discovery.relabel.kubelet.output
+          scrape_interval = "30s"
           scheme          = "https"
           tls_config {
             insecure_skip_verify = true
@@ -168,30 +131,33 @@ alloy:
             credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
           }
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
-        }
-        
-        prometheus.scrape "cadvisor" {
-          targets         = discovery.relabel.cadvisor.output
-          scheme          = "https"
-          tls_config {
-            insecure_skip_verify = true
+          metric_relabel_configs {
+            source_labels = ["__name__"]
+            regex         = "(kubelet_running_pod_count|kubelet_running_container_count|kubelet_pleg_relist_duration_seconds_bucket|container_(cpu|memory)_usage_seconds_total)"
+            action        = "drop"
           }
-          authorization {
-            credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-          }
-          forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
         }
         
         prometheus.scrape "kube_state_metrics" {
           targets         = discovery.kubernetes.kube_state_metrics.targets
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+          metric_relabel_configs {
+            source_labels = ["__name__"]
+            regex         = "(kube_.*_duration_seconds_bucket|kube_pod_labels|kube_pod_owner|kube_.*_info)"
+            action        = "drop"
+          }
         }
         
         prometheus.scrape "node_exporter" {
           targets         = discovery.relabel.node_exporter.output
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+          metric_relabel_configs {
+            source_labels = ["__name__"]
+            regex         = "(node_cpu_seconds_total|node_load1|node_memory_Buffers)"
+            action        = "drop"
+          }
         }
         
         // ============ 5. LOGS ============
@@ -200,31 +166,6 @@ alloy:
           targets    = discovery.relabel.airflow_pods.output
           forward_to = [loki.write.grafana_cloud.receiver]
         }
-        
-        // ============ 6. TRACES ============
-        
-        otelcol.receiver.otlp "airflow" {
-          grpc {
-            endpoint = "0.0.0.0:4317"
-          }
-          http {
-            endpoint = "0.0.0.0:4318"
-          }
-          output {
-            traces = [otelcol.processor.batch.default.input]
-          }
-        }
-
-    # Mở ports cho OTLP receiver
-    extraPorts:
-      - name: otlp-grpc
-        port: 4317
-        targetPort: 4317
-        protocol: TCP
-      - name: otlp-http
-        port: 4318
-        targetPort: 4318
-        protocol: TCP
 
     # Inject credentials từ Secret
     envFrom:
@@ -266,12 +207,6 @@ kube-state-metrics:
       prometheus.io/port: "8080"  # HTTP metrics port
       prometheus.io/path: "/metrics"
   collectors:
-    - configmaps
-    - secrets
     - nodes
     - pods
-    - services
     - deployments
-    - statefulsets
-  extraArgs:
-    - --resources=configmaps  # Explicit enable ConfigMap metrics
