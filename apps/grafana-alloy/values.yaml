@@ -131,33 +131,18 @@ alloy:
             credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
           }
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
-          metric_relabel_configs {
-            source_labels = ["__name__"]
-            regex         = "(kubelet_running_pod_count|kubelet_running_container_count|kubelet_pleg_relist_duration_seconds_bucket|container_(cpu|memory)_usage_seconds_total)"
-            action        = "drop"
-          }
         }
         
         prometheus.scrape "kube_state_metrics" {
           targets         = discovery.kubernetes.kube_state_metrics.targets
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
-          metric_relabel_configs {
-            source_labels = ["__name__"]
-            regex         = "(kube_.*_duration_seconds_bucket|kube_pod_labels|kube_pod_owner|kube_.*_info)"
-            action        = "drop"
-          }
         }
         
         prometheus.scrape "node_exporter" {
           targets         = discovery.relabel.node_exporter.output
           scrape_interval = "30s"
           forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
-          metric_relabel_configs {
-            source_labels = ["__name__"]
-            regex         = "(node_cpu_seconds_total|node_load1|node_memory_Buffers)"
-            action        = "drop"
-          }
         }
         
         // ============ 5. LOGS ============
