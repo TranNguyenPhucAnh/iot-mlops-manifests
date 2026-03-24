@@ -80,12 +80,15 @@ airflow:
   data:
     metadataConnection:
       user: airflow_user
-      pass: airflow_password
+      pass: ""
       protocol: postgresql
       host: db.airflow.local.iot-mlops-dns # Record CNAME trên R53 trỏ về RDS endpoint
       port: 5432
       db: airflow
       sslmode: "require"
+      # Trỏ tới K8s secret do Terraform tạo
+      existingSecret: "airflow-metadata-secret"
+      existingSecretKey: "db-password"
     brokerUrl: redis://airflow-redis.m4jhlh.0001.apse1.cache.amazonaws.com:6379/0
 
   # Cấu hình Airflow core
